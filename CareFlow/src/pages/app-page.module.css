@@ -1,0 +1,27 @@
+.page {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  direction: ltr;
+  min-height: 100svh;
+  background: #f5f9f7;
+  color: #172b2a;
+  color-scheme: light;
+  text-align: start;
+  font-family: var(--sans);
+}
+
+.page > * {
+  direction: rtl;
+}
+
+.page *,
+.page *::before,
+.page *::after {
+  box-sizing: border-box;
+}
+
+@media (max-width: 760px) {
+  .page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

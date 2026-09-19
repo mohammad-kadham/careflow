@@ -1,0 +1,122 @@
+.main {
+  width: 100%;
+  max-width: 1400px;
+  min-width: 0;
+  margin-inline: auto;
+  padding: clamp(24px, 4vw, 56px);
+}
+
+.header {
+  margin-bottom: 32px;
+}
+
+.eyebrow {
+  margin-bottom: 8px;
+  color: #0d8278;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.title {
+  margin: 0 0 8px;
+  color: #172b2a;
+  font-size: clamp(26px, 3vw, 36px);
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: normal;
+}
+
+.description {
+  color: #526563;
+  font-size: 14px;
+  line-height: 1.9;
+}
+
+.sections {
+  display: grid;
+  gap: 24px;
+}
+
+.patientList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  overflow: hidden;
+  border: 1px solid #dce8e2;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 4px 20px rgb(23 43 42 / 3%);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #edf2ef;
+}
+
+.cardHeader h2 {
+  margin: 0;
+  color: #29433f;
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.6;
+  letter-spacing: normal;
+}
+
+.badge {
+  padding: 4px 12px;
+  border: 1px solid #cfe6de;
+  border-radius: 999px;
+  background: #edf7f2;
+  color: #09675f;
+  font-size: 11px;
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 220px;
+  padding: 28px 24px;
+  color: #29433f;
+  font-size: 15px;
+  text-align: center;
+  line-height: 1.8;
+}
+
+.symbol {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 6px;
+  border-radius: 14px;
+  background: #edf7f2;
+  color: #0d8278;
+  font-size: 28px;
+}
+
+.hint {
+  max-width: 360px;
+  color: #657b72;
+  font-size: 13px;
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding: 28px 16px;
+  }
+
+  .cardHeader {
+    padding: 16px 20px;
+  }
+}
