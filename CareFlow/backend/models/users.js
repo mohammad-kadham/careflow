@@ -3,12 +3,13 @@ const db = require('../data/db');
 class User {
     constructor(name, email, password, role = 'doctor', clinicName = null, phone = null, doctorId = null, clinicId = null) {
         Object.assign(this, { name, email, password, role, clinic_name: clinicName, phone, doctor_id: doctorId, clinic_id: clinicId });
+        this.email_verification_required = 1;
     }
 
     save(connection = db) {
         if (!Number.isSafeInteger(this.clinic_id) || this.clinic_id < 1) throw new Error('A clinic is required.');
         return connection.query(
-            'INSERT INTO users (name, email, password, role, clinic_name, phone, doctor_id, clinic_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO users (name, email, password, role, clinic_name, phone, doctor_id, clinic_id, email_verification_required) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)',
             [this.name, this.email, this.password, this.role, this.clinic_name, this.phone, this.doctor_id, this.clinic_id]
         );
     }
@@ -43,7 +44,7 @@ class User {
 
     static findUserById(id) {
         return db.query(
-            "SELECT u.id, u.name, u.email, u.role, c.subscription_required, c.subscription_plan, DATE_FORMAT(c.subscription_expires_at, '%Y-%m-%dT%H:%i:%sZ') AS subscription_expires_at, (c.subscription_required = 0 OR (c.subscription_plan IN ('basic', 'advanced') AND c.subscription_expires_at > UTC_TIMESTAMP())) AS subscription_active, c.name AS clinic_name, u.phone, u.doctor_id, u.clinic_id FROM users u JOIN clinics c ON c.id = u.clinic_id WHERE u.id = ?", [id]
+            "SELECT u.id, u.name, u.email, u.role, u.email_verification_required, u.email_verified_at, c.subscription_required, c.subscription_plan, DATE_FORMAT(c.subscription_expires_at, '%Y-%m-%dT%H:%i:%sZ') AS subscription_expires_at, (c.subscription_required = 0 OR (c.subscription_plan IN ('basic', 'advanced') AND c.subscription_expires_at > UTC_TIMESTAMP())) AS subscription_active, c.name AS clinic_name, u.phone, u.doctor_id, u.clinic_id FROM users u JOIN clinics c ON c.id = u.clinic_id WHERE u.id = ?", [id]
         );
     }
 }

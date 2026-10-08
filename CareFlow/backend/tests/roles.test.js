@@ -77,6 +77,9 @@ require.cache[dbPath] = { id: dbPath, filename: dbPath, loaded: true, exports: {
         return { query, async beginTransaction() {}, async commit() {}, async rollback() {}, release() {} };
     },
 } };
+const verification = require('../services/email-verification');
+verification.assertConfigured = () => {};
+verification.sendFor = async () => true;
 const app = require('../server');
 const auth = require('../config/auth');
 

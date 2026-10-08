@@ -95,6 +95,7 @@ async function initDB() {
   await require('./migrations/add-queue-visit-completed')(pool);
   await require('./migrations/add-subscriptions')(pool);
   await require('./migrations/add-payment-reports')(pool);
+  await require('./migrations/add-email-verification')(pool);
   console.log('Tables ready');
 
 }

@@ -54,3 +54,10 @@ Backend tests mock persistence and do not access a live database. Unit tests cov
 See [MANUAL-PAYMENTS.md](MANUAL-PAYMENTS.md) for the payment-report review query and atomic approval SQL. Customers report a transfer using “لقد دفعت”; reports stay pending until you verify receipt and activate the subscription in the database. Existing clinics keep their access when the subscription migration is first applied; new registrations require approval.
 
 See [backend/AUTH.md](backend/AUTH.md) for session and API details. Production requires HTTPS, `NODE_ENV=production`, appropriate allowed origins, and your own environment secrets.
+
+## Email verification
+
+New doctor and staff accounts confirm their email before login. Configure the Brevo API key,
+verified sender, and frontend origin before deploying or testing account creation. See
+[backend/EMAIL-VERIFICATION.md](backend/EMAIL-VERIFICATION.md) for setup, resend recovery,
+and verification behavior. Existing accounts keep their access when the migration runs.

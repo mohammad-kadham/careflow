@@ -8,6 +8,7 @@ const patientRoutes = require('./routes/patient');
 
 const app = express();
 app.disable('x-powered-by');
+app.set('trust proxy', 'loopback');
 
 app.use(cors({
     origin: auth.allowedOrigins,

@@ -66,7 +66,10 @@ export default function StaffManagement() {
             if (!result?.user?.id) throw new Error('تعذر تأكيد إنشاء الحساب. حدّث القائمة قبل إعادة المحاولة.');
             form.reset();
             setStaff([result.user]);
-            setFeedback({ error: false, text: 'تم إنشاء حساب الموظف. يمكنه الآن تسجيل الدخول ببريده وكلمة السر التي حددتها.' });
+            setFeedback({ error: false, text: result.verificationRequired
+                ? result.emailSent ? 'تم إنشاء حساب الموظف وإرسال رابط التأكيد إلى بريده. يجب تأكيد البريد قبل تسجيل الدخول.'
+                    : 'تم إنشاء حساب الموظف، لكن تعذر إرسال رسالة التأكيد. يمكنه طلب رابط جديد من صفحة تسجيل الدخول.'
+                : 'تم إنشاء حساب الموظف. يمكنه الآن تسجيل الدخول ببريده وكلمة السر التي حددتها.' });
         } catch (error) {
             setFeedback({ error: true, text: error instanceof TypeError
                 ? 'تعذر تأكيد إنشاء الحساب. حدّث القائمة قبل إعادة المحاولة.' : error.message });

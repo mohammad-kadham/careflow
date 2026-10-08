@@ -32,6 +32,8 @@ test('doctor signup creates the clinic and user in one transaction', async () =>
     assert.equal(user.clinic_id, 42);
     assert.equal(user.id, 7);
     assert.equal(user.subscription_required, 1);
+    assert.equal(user.email_verification_required, 1);
+    assert.match(calls[2].sql, /email_verification_required.*1\)/);
     assert.equal(calls[1].sql, 'INSERT INTO clinics (name, subscription_required) VALUES (?, 1)');
     assert.equal(calls[0], 'begin');
     assert.deepEqual(calls[1].params, ['Clinic']);

@@ -16,6 +16,7 @@ export default function LoginPage() {
         expired: 'انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى. لم تُحفظ التغييرات غير المرسلة.',
         'signed-out': 'تم تسجيل الخروج بنجاح.',
         'signed-up': 'تم إنشاء حسابك بنجاح. سجّل الدخول للمتابعة.',
+        'email-verified': 'تم تأكيد بريدك الإلكتروني. سجّل الدخول للمتابعة.',
     };
 
     const isNotEmail = didEdit.email && !inputValues.email.includes('@');
@@ -31,6 +32,10 @@ export default function LoginPage() {
             await signIn(inputValues.email, inputValues.password);
             navigate(`/app${location.search}`, { replace: true });
         } catch (failure) {
+            if (failure.code === 'EMAIL_NOT_VERIFIED') {
+                navigate(`/verify-email${location.search}`, { state: { email: inputValues.email.trim() } });
+                return;
+            }
             setError(failure instanceof TypeError
                 ? 'تعذر الاتصال بالخادم. تحقق من الاتصال وحاول مرة أخرى.'
                 : failure.message);
@@ -83,6 +88,7 @@ export default function LoginPage() {
                     </button>
                 </form>
                 <Link to="/demo" className={styles.demoButton}>جرّب بدون تسجيل — حساب الطبيب والموظف</Link>
+                <p className={styles.switch}><Link to="/verify-email">إعادة إرسال رسالة تأكيد البريد</Link></p>
                 <p className={styles.switch}>ليس لديك حساب؟ <Link to={`/signup${location.search}`}>إنشاء حساب جديد</Link></p>
             </section>
         </main>
