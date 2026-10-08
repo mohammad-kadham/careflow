@@ -17,6 +17,7 @@ jobs:
     defaults:
       run:
         working-directory: CareFlow
+        shell: bash
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -50,7 +51,7 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         run: |
           mkdir -p release/backend
-          git archive "$GITHUB_SHA:CareFlow/backend" | tar -x -C release/backend
+          git -C "$GITHUB_WORKSPACE" archive "$GITHUB_SHA:CareFlow/backend" | tar -x -C release/backend
           rm -f release/backend/.env.example release/backend/.gitignore
           cp -R dist release/dist
           printf '%s\n' "$GITHUB_SHA" > release/REVISION
