@@ -32,7 +32,9 @@ app.use((err, req, res, next) => {
 if (require.main === module) {
     const initDB = require('./data/init');
     initDB().then(() => {
-        app.listen(8080, () => console.log('CareFlow API listening on port 8080'));
+        const port = Number(process.env.PORT || 8080);
+        const host = process.env.HOST || '0.0.0.0';
+        app.listen(port, host, () => console.log(`CareFlow API listening on ${host}:${port}`));
     }).catch(error => {
         console.error('Failed to initialize the database:', error.message);
         process.exitCode = 1;
