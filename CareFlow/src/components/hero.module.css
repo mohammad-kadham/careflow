@@ -80,6 +80,10 @@
   background: #09675f;
 }
 
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.demoButton { background: #e4f2ec; color: #09675f; box-shadow: inset 0 0 0 1px #9dc9b7; }
+.demoButton:hover { background: #d2eade; }
+
 .button:focus-visible {
   outline: 2px solid #09675f;
   outline-offset: 5px;

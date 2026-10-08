@@ -1,16 +1,43 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useRef, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { signIn } from '../auth/session';
 import styles from "./auth.module.css";
 
 export default function LoginPage() {
     const [inputValues, setInputValues] = useState({ email: '', password: '' });
     const [didEdit, setDidEdit] = useState({ email: false, password: false });
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState('');
+    const submittingRef = useRef(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const notices = {
+        required: 'يرجى تسجيل الدخول للوصول إلى مساحة العمل.',
+        expired: 'انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى. لم تُحفظ التغييرات غير المرسلة.',
+        'signed-out': 'تم تسجيل الخروج بنجاح.',
+        'signed-up': 'تم إنشاء حسابك بنجاح. سجّل الدخول للمتابعة.',
+    };
 
     const isNotEmail = didEdit.email && !inputValues.email.includes('@');
     const invalidPassword = didEdit.password && inputValues.password.length === 0;
 
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
         event.preventDefault();
+        if (submittingRef.current) return;
+        submittingRef.current = true;
+        setSubmitting(true);
+        setError('');
+        try {
+            await signIn(inputValues.email, inputValues.password);
+            navigate(`/app${location.search}`, { replace: true });
+        } catch (failure) {
+            setError(failure instanceof TypeError
+                ? 'تعذر الاتصال بالخادم. تحقق من الاتصال وحاول مرة أخرى.'
+                : failure.message);
+        } finally {
+            submittingRef.current = false;
+            setSubmitting(false);
+        }
     }
 
     function handleInputChange(identifier, value) {
@@ -30,11 +57,12 @@ export default function LoginPage() {
                     <h1 id="login-title" className={styles.title}>أهلاً بعودتك</h1>
                     <p className={styles.description}>سجّل دخولك لمتابعة إدارة عيادتك.</p>
                 </header>
-                <form onSubmit={handleSubmit} className={styles.form}>
+                {notices[location.state?.reason] && <p className={styles.notice} role="status">{notices[location.state.reason]}</p>}
+                <form onSubmit={handleSubmit} className={styles.form} aria-busy={submitting}>
                     <div className={styles.field}>
                         <label htmlFor="email">البريد الإلكتروني</label>
                         <input type="email" name="email" id="email" dir="ltr" placeholder="you@example.com"
-                            autoComplete="email" required value={inputValues.email}
+                            autoComplete="email" required disabled={submitting} value={inputValues.email}
                             aria-invalid={isNotEmail} aria-describedby={isNotEmail ? 'email-error' : undefined}
                             onChange={(e) => handleInputChange('email', e.target.value)}
                             onBlur={() => handleInputBlur('email')} />
@@ -43,15 +71,19 @@ export default function LoginPage() {
                     <div className={styles.field}>
                         <label htmlFor="password">كلمة السر</label>
                         <input type="password" name="password" id="password" placeholder="أدخل كلمة السر"
-                            autoComplete="current-password" required value={inputValues.password}
+                            autoComplete="current-password" required disabled={submitting} value={inputValues.password}
                             aria-invalid={invalidPassword} aria-describedby={invalidPassword ? 'password-error' : undefined}
                             onChange={(e) => handleInputChange('password', e.target.value)}
                             onBlur={() => handleInputBlur('password')} />
                         {invalidPassword && <p id="password-error" className={styles.error} role="alert">يرجى إدخال كلمة السر.</p>}
                     </div>
-                    <button type="submit" className={styles.button}>تسجيل الدخول</button>
+                    {error && <p className={styles.error} role="alert">{error}</p>}
+                    <button type="submit" className={styles.button} disabled={submitting}>
+                        {submitting ? 'جارٍ تسجيل الدخول…' : 'تسجيل الدخول'}
+                    </button>
                 </form>
-                <p className={styles.switch}>ليس لديك حساب؟ <Link to="/signup">إنشاء حساب جديد</Link></p>
+                <Link to="/demo" className={styles.demoButton}>جرّب بدون تسجيل — حساب الطبيب والموظف</Link>
+                <p className={styles.switch}>ليس لديك حساب؟ <Link to={`/signup${location.search}`}>إنشاء حساب جديد</Link></p>
             </section>
         </main>
     );

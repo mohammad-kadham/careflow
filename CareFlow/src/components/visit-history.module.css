@@ -1,0 +1,32 @@
+.form { display: grid; gap: 20px; padding: 24px; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.fields legend { margin-bottom: 16px; color: #28332e; font-size: 16px; font-weight: 700; }
+.hint { grid-column: 1 / -1; color: #46533e; font-size: 13px; line-height: 1.9; }
+.field { display: grid; gap: 8px; min-width: 0; }
+.field label { font-size: 14px; color: #28332e; font-weight: 600; }
+.field input, .field textarea {
+  width: 100%; min-width: 0; padding: 12px; border: 2px solid;
+  border-color: #737e69 #f3f5ec #f3f5ec #737e69; border-radius: 2px;
+  background: #e8edde; color: #253321; font: inherit; font-size: 15px;
+  box-shadow: inset 1px 2px 4px rgb(34 46 25 / 14%);
+}
+.field textarea { resize: vertical; line-height: 1.8; }
+.field input:focus-visible, .field textarea:focus-visible, .visit summary:focus-visible { outline: 2px solid #09675f; outline-offset: 3px; }
+.actions { display: flex; flex-wrap: wrap; gap: 14px; padding-bottom: 4px; }
+.actions button:disabled, .historyHeader button:disabled { opacity: .6; cursor: wait; }
+.historyHeader { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 20px 24px; }
+.historyHeader h3 { margin: 0; color: #28332e; font-size: 16px; }
+.history { padding: 0 24px 24px; display: grid; gap: 12px; }
+.visit { border: 1px solid #929d87; background: #d9dece; }
+.visit summary { cursor: pointer; padding: 14px; color: #28332e; font-size: 14px; line-height: 1.8; overflow-wrap: anywhere; }
+.visit dl { display: grid; gap: 16px; margin: 0; padding: 16px; border-top: 1px solid #929d87; }
+.visit dt { font-size: 13px; color: #46533e; }
+.visit dd { margin: 4px 0 0; font-size: 14px; color: #28332e; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.9; }
+.error, .success { padding: 14px; font-size: 14px; line-height: 1.8; }
+.error { background: #fff0ed; color: #972d25; }
+.success { background: #e7f3dc; color: #285b20; }
+@media (max-width: 650px) {
+  .fields { grid-template-columns: minmax(0, 1fr); }
+  .form, .historyHeader { padding: 20px 16px; }
+  .history { padding: 0 16px 20px; }
+}

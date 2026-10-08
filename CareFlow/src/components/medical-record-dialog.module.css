@@ -1,0 +1,50 @@
+.dialog {
+  box-sizing: border-box;
+  width: min(760px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  border: 3px solid;
+  border-color: #f4f5ef #828b80 #727c71 #f4f5ef;
+  border-radius: 3px;
+  background: #c8ccc3;
+  color: #28332e;
+  color-scheme: light;
+  font-family: var(--sans);
+  text-align: start;
+  box-shadow: 0 12px 48px rgb(0 0 0 / 40%);
+}
+.dialog::backdrop { background: rgb(15 24 19 / 65%); }
+.header {
+  display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  padding: 20px 24px; border-bottom: 2px solid #969f8f;
+  background: linear-gradient(#e5e7de, #bbc1b5);
+}
+.header > div { min-width: 0; }
+.header h2 { margin: 0 0 8px; color: #28332e; font-size: 20px; font-weight: 700; }
+.header p { font-size: 14px; overflow-wrap: anywhere; }
+.content { padding: 24px; font-size: 14px; line-height: 1.9; }
+.visits { border-top: 2px solid #969f8f; }
+.visits > h3 { margin: 0 0 16px; font-size: 16px; }
+.visit { border: 1px solid #929d87; background: #d9dece; margin-top: 12px; }
+.visit summary { padding: 14px; cursor: pointer; overflow-wrap: anywhere; }
+.visit summary:focus-visible { outline: 2px solid #09675f; outline-offset: 3px; }
+.visit .details { padding: 16px; border-top: 1px solid #929d87; }
+.record + .record { border-top: 2px solid #969f8f; margin-top: 24px; padding-top: 20px; }
+.record h3 { margin: 0 0 16px; font-size: 15px; }
+.details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin: 0; }
+.details dt { color: #46533e; font-size: 13px; }
+.details dd { margin: 4px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.button {
+  min-height: 44px; padding: 8px 16px; border: 2px solid;
+  border-color: #fafbf8 #8d938e #737b75 #e6e9e3; border-radius: 3px;
+  background: linear-gradient(#eceee8, #c6cbc2); color: #28332e;
+  box-shadow: 0 3px 0 #687169; font: inherit; font-size: 14px; cursor: pointer;
+}
+.button:hover { background: #eef1e6; }
+.button:active { transform: translateY(2px); box-shadow: 0 1px 0 #687169; }
+.button:focus-visible { outline: 2px solid #09675f; outline-offset: 3px; }
+.content button { margin-top: 16px; }
+@media (max-width: 560px) {
+  .details { grid-template-columns: minmax(0, 1fr); }
+  .header, .content { padding: 16px; }
+}

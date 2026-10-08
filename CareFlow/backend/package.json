@@ -1,0 +1,28 @@
+{
+  "name": "nabd-backend",
+  "version": "1.0.0",
+  "description": "backend server for Nabd",
+  "license": "ISC",
+  "author": "MK",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "test": "node --test tests/*.test.js tests/unit/*.test.js",
+    "test:unit": "node --test tests/unit/*.test.js",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "body-parser": "^2.3.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "express-validator": "^7.3.2",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.3.0",
+    "mysql2": "^3.24.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

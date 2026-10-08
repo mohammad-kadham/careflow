@@ -1,18 +1,51 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useRef, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { signUp } from '../auth/session';
 import styles from "./auth.module.css";
 
 export default function SignupPage() {
     const [emailValid, setEmailValid] = useState(false);
     const [passwordValid, setPasswordValid] = useState(false);
     const [passwordConfirm, setPasswordConfirm] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState('');
+    const submittingRef = useRef(false);
+    const navigate = useNavigate();
+    const location = useLocation();
 
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
         event.preventDefault();
-        const formValues = Object.fromEntries(new FormData(event.target).entries());
-        setEmailValid(!formValues.email.includes('@'));
-        setPasswordValid(formValues.password.length < 6);
-        setPasswordConfirm(formValues.confirm_password !== formValues.password);
+        if (submittingRef.current) return;
+        const formValues = Object.fromEntries(new FormData(event.currentTarget).entries());
+        const invalidEmail = !formValues.email.trim().includes('@');
+        const shortPassword = formValues.password.length < 6;
+        const mismatch = formValues.confirm_password !== formValues.password;
+        setEmailValid(invalidEmail);
+        setPasswordValid(shortPassword);
+        setPasswordConfirm(mismatch);
+        setError('');
+        if (invalidEmail || shortPassword || mismatch) return;
+        if (['name', 'clinic_name', 'phone'].some(field => !formValues[field].trim())) {
+            setError('يرجى إدخال الاسم واسم العيادة ورقم الهاتف.');
+            return;
+        }
+        if (new TextEncoder().encode(formValues.password).length > 72) {
+            setError('كلمة السر طويلة جداً. يرجى تقصيرها.');
+            return;
+        }
+        submittingRef.current = true;
+        setSubmitting(true);
+        try {
+            await signUp(formValues);
+            navigate(`/login${location.search}`, { replace: true, state: { reason: 'signed-up' } });
+        } catch (failure) {
+            setError(failure instanceof TypeError
+                ? 'تعذر تأكيد إنشاء الحساب. تحقق من الاتصال؛ إذا كان الحساب قد أُنشئ، يمكنك تسجيل الدخول.'
+                : failure.message);
+        } finally {
+            submittingRef.current = false;
+            setSubmitting(false);
+        }
     }
 
     return (
@@ -21,27 +54,27 @@ export default function SignupPage() {
             <section className={`${styles.card} ${styles.signupCard}`} aria-labelledby="signup-title">
                 <header className={styles.intro}>
                     <h1 id="signup-title" className={styles.title}>ابدأ مع كيرفلو</h1>
-                    <p className={styles.description}>أنشئ حسابك واجعل إدارة عيادتك أكثر سهولة.</p>
+                    <p className={styles.description}>أنشئ حساب طبيب، ثم سجّل الدخول لعرض تعليمات الدفع عبر Qi Card. تبدأ إدارة العيادة بعد مراجعة التحويل وتفعيل الاشتراك.</p>
                 </header>
-                <form onSubmit={handleSubmit} className={styles.form}>
-                    <div className={styles.fields}>
+                <form onSubmit={handleSubmit} className={styles.form} aria-busy={submitting}>
+                    <fieldset className={`${styles.fields} ${styles.signupFields}`} disabled={submitting} aria-label="بيانات الحساب">
                         <div className={styles.field}>
                             <label htmlFor="name">الاسم</label>
-                            <input type="text" name="name" id="name" autoComplete="name" placeholder="الاسم الكامل" required />
+                            <input type="text" name="name" id="name" autoComplete="name" placeholder="الاسم الكامل" maxLength={100} required />
                         </div>
                         <div className={styles.field}>
                             <label htmlFor="email">البريد الإلكتروني</label>
-                            <input type="email" name="email" id="email" dir="ltr" autoComplete="email" placeholder="you@example.com" required
+                            <input type="email" name="email" id="email" dir="ltr" autoComplete="email" placeholder="you@example.com" maxLength={255} required
                                 aria-invalid={emailValid} aria-describedby={emailValid ? 'email-error' : undefined} />
                             {emailValid && <p id="email-error" className={styles.error} role="alert">يرجى إدخال بريد إلكتروني صحيح.</p>}
                         </div>
                         <div className={styles.field}>
                             <label htmlFor="clinic">اسم العيادة</label>
-                            <input type="text" name="clinic_name" id="clinic" autoComplete="organization" placeholder="أدخل اسم العيادة" required />
+                            <input type="text" name="clinic_name" id="clinic" autoComplete="organization" placeholder="أدخل اسم العيادة" maxLength={150} required />
                         </div>
                         <div className={styles.field}>
                             <label htmlFor="phone">رقم الهاتف</label>
-                            <input type="tel" name="phone" id="phone" dir="ltr" autoComplete="tel" placeholder="07xx xxx xxxx" required />
+                            <input type="tel" name="phone" id="phone" dir="ltr" autoComplete="tel" placeholder="07xx xxx xxxx" maxLength={40} required />
                         </div>
                         <div className={styles.field}>
                             <label htmlFor="password">كلمة السر</label>
@@ -55,10 +88,13 @@ export default function SignupPage() {
                                 aria-invalid={passwordConfirm} aria-describedby={passwordConfirm ? 'confirm-error' : undefined} />
                             {passwordConfirm && <p id="confirm-error" className={styles.error} role="alert">يجب أن تتطابق كلمتا السر.</p>}
                         </div>
-                    </div>
-                    <button type="submit" className={styles.button}>إنشاء حساب</button>
+                    </fieldset>
+                    {error && <p className={styles.error} role="alert">{error}</p>}
+                    <button type="submit" className={styles.button} disabled={submitting}>
+                        {submitting ? 'جارٍ إنشاء الحساب…' : 'إنشاء حساب'}
+                    </button>
                 </form>
-                <p className={styles.switch}>لديك حساب بالفعل؟ <Link to="/login">تسجيل الدخول</Link></p>
+                <p className={styles.switch}>لديك حساب بالفعل؟ <Link to={`/login${location.search}`}>تسجيل الدخول</Link></p>
             </section>
         </main>
     );

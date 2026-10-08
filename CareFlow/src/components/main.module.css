@@ -10,6 +10,13 @@
   margin-bottom: 32px;
 }
 
+.main.addMain {
+  max-width: none;
+  min-height: 100dvh;
+  padding: clamp(16px, 2vw, 28px);
+  background: #d4d7d0;
+}
+
 .eyebrow {
   margin-bottom: 8px;
   color: #0d8278;

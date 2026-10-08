@@ -1,0 +1,19 @@
+.demo { --workspace-top: 90px; }
+.banner {
+  position: sticky; top: 0; z-index: 40; display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: space-between; gap: 12px; padding: 12px 20px;
+  color: #ffffff; background: #492775; border-bottom: 3px solid #c3a2ed;
+  box-shadow: 0 3px 10px #2b124c33;
+  font-family: var(--sans);
+}
+.banner strong { font-size: 15px; color: #ffffff; }
+.banner p { margin: 4px 0 0; color: #eee3fc; font-size: 12px; line-height: 1.7; max-width: 600px; }
+.banner nav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.banner button, .banner a {
+  padding: 8px 12px; min-height: 40px; border: 2px outset #d6bdf4;
+  background: #eadcf9; color: #38185d; font: inherit; font-size: 12px;
+  text-decoration: none; cursor: pointer;
+}
+.banner button:hover, .banner a:hover { background: #faf5ff; }
+.banner button[aria-pressed="true"] { border-style: inset; border-color: #f5d780; background: #ffe49a; color: #352044; font-weight: 700; }
+.banner button:focus-visible, .banner a:focus-visible { outline: 3px solid #ffe49a; outline-offset: 3px; }

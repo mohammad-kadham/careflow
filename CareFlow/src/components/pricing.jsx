@@ -1,21 +1,31 @@
-import { useState } from "react";
+import { Link } from 'react-router-dom';
+import { subscriptionPlans } from '../billing';
 import styles from "./pricing.module.css";
 
+const features = [
+  'تسجيل بيانات المرضى والبحث في سجلاتهم',
+  'إدارة قائمة الانتظار ومتابعة حالة الزيارة',
+  'عرض السجل الطبي والزيارات السابقة',
+  'تسجيل تفاصيل الزيارة وحفظها',
+  'فتح عدة زيارات والتنقّل بينها',
+  'جرس نداء للموظف مع تأكيد الاستلام',
+  'إيقاف دخول المرضى واستئنافه',
+  'صلاحيات منفصلة للطبيب والموظف',
+];
+
 const plans = [
-  { name: "الأساسية", price: 15, description: "بداية بسيطة لتنظيم عيادتك." },
-  { name: "المتقدمة", price: 25, description: "خطوة جديدة مع نمو عيادتك.", featured: true },
-  { name: "الاحترافية", price: 50, description: "للمرحلة القادمة من نجاح عيادتك." },
+  { ...subscriptionPlans[0], description: "بداية بسيطة لتنظيم عيادتك.", accounts: ['حساب طبيب واحد', 'حساب موظف واحد'] },
+  { ...subscriptionPlans[1], description: "مساحة أكبر لفريق عيادتك.", accounts: ['حسابان للأطباء', '٣ حسابات للموظفين'], featured: true },
 ];
 
 export default function Pricing() {
-  const [selectedPlan, setSelectedPlan] = useState(null);
 
   return (
     <section id="pricing" className={styles.section} aria-labelledby="pricing-title">
       <div className={styles.heading}>
         <span className={styles.eyebrow}>الأسعار</span>
         <h2 id="pricing-title" className={styles.title}>باقة تناسب عيادتك.</h2>
-        <p className={styles.subtitle}>اختر الباقة الأنسب لك. جميع الأسعار بالدولار الأمريكي، والاشتراك شهري.</p>
+        <p className={styles.subtitle}>اختر الباقة الأنسب لك. جميع الأسعار بالدينار العراقي، والاشتراك شهري.</p>
       </div>
 
       <div className={styles.grid}>
@@ -31,21 +41,31 @@ export default function Pricing() {
             <p className={styles.description}>{plan.description}</p>
             <p className={styles.price}>
               <span className={styles.amount}>{plan.price.toLocaleString("ar-IQ")}</span>
-              <span className={styles.period}> دولارًا / شهر</span>
+              <span className={styles.period}> د.ع / شهر</span>
             </p>
-            <button
-              type="button"
+            <ul className={styles.accounts} aria-label="الحسابات المشمولة">
+              {plan.accounts.map(account => <li key={account}>
+                <span aria-hidden="true">✓</span>{account}
+              </li>)}
+            </ul>
+            <h4 className={styles.featuresTitle}>المميزات المشمولة</h4>
+            <ul className={styles.features} aria-label={`مميزات الباقة ${plan.name}`}>
+              {features.map(feature => <li key={feature}>
+                <span className={styles.check} aria-hidden="true">✓</span>
+                <span>{feature}</span>
+              </li>)}
+            </ul>
+            <Link
+              to={`/subscription?plan=${plan.id}`}
               className={styles.choose}
-              aria-pressed={selectedPlan === plan.name}
-              onClick={() => setSelectedPlan(plan.name)}
             >
-              {selectedPlan === plan.name ? `تم اختيار ${plan.name}` : `اختر ${plan.name}`}
-            </button>
+              {`اشترك في ${plan.name}`}
+            </Link>
           </article>
         ))}
       </div>
       <p className={styles.status} role="status">
-        {selectedPlan ? `تم اختيار الباقة ${selectedPlan}. لم يتم تفعيل أي اشتراك بعد.` : ""}
+        الدفع بتحويل يدوي عبر Qi Card. يتم تفعيل الاشتراك بعد استلام المبلغ ومراجعته.
       </p>
     </section>
   );

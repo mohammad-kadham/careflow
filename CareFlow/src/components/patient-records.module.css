@@ -1,0 +1,96 @@
+.panel {
+  border: 2px solid;
+  border-color: #f4f5ef #828b80 #727c71 #f4f5ef;
+  border-radius: 3px;
+  background: #c8ccc3;
+  box-shadow: 0 4px 0 #777f73;
+}
+
+.search {
+  display: grid;
+  gap: 12px;
+  padding: 24px;
+  border-bottom: 2px solid #969f8f;
+}
+
+.search label {
+  color: #28332e;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.search input {
+  width: 100%;
+  min-width: 0;
+  padding: 14px;
+  border: 2px solid;
+  border-color: #737e69 #f3f5ec #f3f5ec #737e69;
+  border-radius: 2px;
+  background: #e8edde;
+  color: #253321;
+  font: inherit;
+  font-size: 16px;
+  box-shadow: inset 1px 2px 4px rgb(34 46 25 / 14%);
+}
+
+.search p,
+.row p {
+  color: #46533e;
+  font-size: 13px;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  border-bottom: 1px solid #a5af9d;
+  box-shadow: inset 0 1px 0 #e9ecdf;
+}
+
+.row:last-child { border-bottom: 0; }
+.row:nth-child(even) { background: #d3d8cc; }
+.row h2 { color: #28332e; font-size: 17px; font-weight: 700; line-height: 1.8; overflow-wrap: anywhere; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.panel button {
+  padding: 12px 18px;
+  min-height: 48px;
+  border: 2px solid;
+  border-color: #fafbf8 #8d938e #737b75 #e6e9e3;
+  border-radius: 3px;
+  background: linear-gradient(#eceee8, #c6cbc2);
+  box-shadow: 0 4px 0 #687169;
+  color: #28332e;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.panel button:hover:not(:disabled) { background: #eef1e6; }
+.panel button:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #687169; }
+.panel button:disabled { cursor: default; opacity: .65; box-shadow: inset 0 2px 3px #a1ab97; }
+.panel button:focus-visible,
+.search input:focus-visible { outline: 2px solid #09675f; outline-offset: 3px; }
+.message { padding: 20px 24px; color: #28332e; font-size: 14px; line-height: 1.9; }
+.message button { margin-top: 12px; }
+
+@media (max-width: 1000px) {
+  .row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .actions { grid-column: 1 / -1; }
+}
+@media (max-width: 480px) {
+  .row { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 20px 16px; }
+  .search { padding: 20px 16px; }
+}

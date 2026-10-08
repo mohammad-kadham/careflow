@@ -1,16 +1,56 @@
-# React + Vite
+# CareFlow
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Arabic clinic workspace built with React and Vite, with an Express/MySQL backend in `backend/`.
 
-Currently, two official plugins are available:
+Features include doctor/staff accounts, clinic-scoped patient records, queues and visits, staff alerts, a browser-only demo, and manually approved Qi Card subscriptions. Mastercard is displayed as coming soon.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Local setup
 
-## React Compiler
+Use Node.js 22.16+ and MySQL. From the repository root, enter `CareFlow/` before running these commands.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```sh
+npm ci
+npm --prefix backend ci
+```
 
-## Expanding the ESLint configuration
+Copy `backend/.env.example` to `backend/.env`. Set the database connection values for your local MySQL database and set `JWT_SECRET` to a random secret (at least 32 bytes). Generate one with:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```sh
+node -e "console.log(require('node:crypto').randomBytes(48).toString('hex'))"
+```
+
+Create the MySQL database named by `DB_NAME` and grant your database user access before starting the API. Startup creates tables and applies the included migrations. Local environment files and database contents are not included in Git.
+
+Start the backend:
+
+```sh
+npm --prefix backend start
+```
+
+In another terminal, start the frontend:
+
+```sh
+npm run dev
+```
+
+The API uses port 8080 and Vite normally uses port 5173. Use the same hostname for both (`localhost` or `127.0.0.1`). To use another API origin, copy `.env.example` to `.env` and set `VITE_API_URL`; update the backend's `CORS_ORIGINS` accordingly.
+
+Open `/demo` to try sample data without a database or account. Demo data resets on reload.
+
+## Verification
+
+```sh
+npm run lint
+npm run build
+npm test
+npm run test:backend
+npm --prefix backend run test:unit
+```
+
+Backend tests mock persistence and do not access a live database. Unit tests cover payment reporting, subscription checks, and role permissions; the full suite also exercises HTTP authentication, clinic isolation, queues, and alerts.
+
+## Manual subscriptions
+
+See [MANUAL-PAYMENTS.md](MANUAL-PAYMENTS.md) for the payment-report review query and atomic approval SQL. Customers report a transfer using “لقد دفعت”; reports stay pending until you verify receipt and activate the subscription in the database. Existing clinics keep their access when the subscription migration is first applied; new registrations require approval.
+
+See [backend/AUTH.md](backend/AUTH.md) for session and API details. Production requires HTTPS, `NODE_ENV=production`, appropriate allowed origins, and your own environment secrets.

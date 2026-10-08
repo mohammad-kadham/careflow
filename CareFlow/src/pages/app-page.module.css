@@ -14,6 +14,10 @@
   direction: rtl;
 }
 
+/* Keep alert-bar clearance inside the content so it cannot shorten the
+   sidebar's sticky area or create a blank strip beneath the entire layout. */
+.page.staffPage > main { padding-bottom: 160px; }
+
 .page *,
 .page *::before,
 .page *::after {
@@ -24,4 +28,5 @@
   .page {
     grid-template-columns: minmax(0, 1fr);
   }
+  .page.staffPage > main { padding-bottom: 250px; }
 }

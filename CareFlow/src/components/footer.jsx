@@ -21,6 +21,7 @@ export default function Footer() {
           <nav className={styles.nav} aria-label="روابط التذييل">
             <h2 className={styles.heading}>اكتشف كيرفلو</h2>
             <Link to="/">الرئيسية</Link>
+            <a href="#features">المميزات</a>
             <a href="#pricing">الباقات والأسعار</a>
           </nav>
 

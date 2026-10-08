@@ -1,6 +1,6 @@
 import styles from "./patient-row.module.css";
 
-export default function PatientsRow({ patient }) {
+export default function PatientsRow({ patient, onOpenVisit, opening = false, disabled = false }) {
     return <li className={styles.row}>
         <div className={styles.identity}>
             <svg className={styles.avatar} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true" focusable="false">
@@ -15,16 +15,18 @@ export default function PatientsRow({ patient }) {
         <dl className={styles.details}>
             <div className={styles.field}>
                 <dt className={styles.label}>رقم الدور</dt>
-                <dd className={styles.queue}><bdi>{patient.queue}</bdi></dd>
+                <dd className={`${styles.queue} ${patient.visitCompleted ? styles.visitCompleted : patient.visitOpen ? styles.visitOpen : ''}`}><bdi>{patient.queue}</bdi></dd>
+                {Boolean(patient.visitCompleted || patient.visitOpen) && <span className={styles.visitLabel}>{patient.visitCompleted ? 'اكتملت الزيارة' : 'الزيارة مفتوحة'}</span>}
             </div>
             <div className={styles.field}>
                 <dt className={styles.label}>رقم السجل</dt>
                 <dd className={styles.record}><bdi>{patient.recordNumber}</bdi></dd>
             </div>
-            <div className={styles.field}>
-                <dt className={styles.label}>الحالة</dt>
-                <dd className={styles.status}><bdi>{patient.status}</bdi></dd>
-            </div>
         </dl>
+        {onOpenVisit && !patient.visitCompleted && <button type="button" className={styles.visitButton}
+            disabled={disabled} aria-busy={opening}
+            aria-label={`فتح زيارة ${patient.name}`} onClick={() => onOpenVisit(patient.id, patient.name)}>
+            {opening ? 'جارٍ الفتح…' : 'فتح الزيارة'}
+        </button>}
     </li>;
 }

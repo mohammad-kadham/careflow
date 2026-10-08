@@ -1,15 +1,34 @@
 .sidebar {
   position: sticky;
-  top: 0;
+  top: var(--workspace-top, 0px);
   display: flex;
   flex-direction: column;
   align-self: start;
-  height: 100dvh;
+  height: calc(100dvh - var(--workspace-top, 0px));
   overflow-y: auto;
   padding: 0;
   border-inline-start: 1px solid #dce8e2;
-  background: #fff;
+  background: #c8ccc8;
 }
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-shrink: 0;
+  padding: 18px 12px;
+  border: 1px solid;
+  border-color: #eef1e8 #a8ada9 #929b8e;
+  background: linear-gradient(#d8ddd2, #bbc3b6);
+  color: #28332e;
+  font-size: 24px;
+  font-weight: 700;
+  text-shadow: 0 1px 0 #f4f5ef;
+}
+
+.brand img { object-fit: contain; flex-shrink: 0; }
+.brandDot { color: #0d8278; }
 
 .navigation {
   display: grid;
@@ -23,7 +42,8 @@
   box-shadow: inset 0 2px 4px rgb(0 0 0 / 15%);
 }
 
-.navigation button {
+.navigation button,
+.logout {
   position: relative;
   display: flex;
   align-items: center;
@@ -58,7 +78,8 @@
   filter: drop-shadow(0 1px 0 rgb(255 255 255 / 65%));
 }
 
-.navigation button:hover {
+.navigation button:hover,
+.logout:hover:not(:disabled) {
   background: linear-gradient(#f6f7f1, #d4d9cf);
 }
 
@@ -92,15 +113,39 @@
   background: linear-gradient(#b8c3b5, #d1dac9);
 }
 
-.navigation button:active {
+.navigation button:active,
+.logout:active:not(:disabled) {
   transform: translateY(5px);
   border-color: #687169 #929b92 #bbc3b7 #687169;
   box-shadow: 0 0 0 #687169, inset 0 2px 5px rgb(0 0 0 / 25%);
 }
 
-.navigation button:focus-visible {
+.navigation button:focus-visible,
+.logout:focus-visible {
   outline: 2px solid #0d8278;
   outline-offset: 3px;
+}
+
+.account {
+  padding: 12px 12px 18px;
+  border: 1px solid #a8ada9;
+}
+
+.logout {
+  width: 100%;
+  color: #74372e;
+}
+
+.logout:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.error {
+  margin: 0 0 12px;
+  color: #80291f;
+  font-size: 13px;
+  line-height: 1.8;
 }
 
 @media (max-width: 760px) {
@@ -114,7 +159,7 @@
 
   .navigation {
     flex: none;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
     padding: 10px 8px 15px;
   }
@@ -137,7 +182,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .navigation button {
+  .navigation button,
+  .logout {
     transition: none;
   }
 }

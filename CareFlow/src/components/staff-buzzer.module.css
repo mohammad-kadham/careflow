@@ -1,0 +1,73 @@
+.controls { padding: 0; }
+.staffStatus {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px;
+  padding: 8px 10px; border: 2px inset #a0aa96; background: #b9c2ac;
+  color: #2d3a27; font-size: 11px; line-height: 1.7;
+}
+.statusLight { width: 8px; height: 8px; flex-shrink: 0; border: 1px solid #687262; border-radius: 50%; background: #868d80; }
+.statusLight.online { background: #b3f280; border-color: #537142; box-shadow: 0 0 5px #78bb4b; }
+.soundStatus { margin-inline-start: auto; }
+.receipt { flex-basis: 100%; border-top: 1px solid #97a38c; padding-top: 4px; }
+.controlRow { display: flex; align-items: flex-start; justify-content: center; gap: 16px; }
+.entryControl { min-width: 0; width: 128px; text-align: center; }
+.entryControl .entryStatus { margin-top: 0; font-weight: 700; }
+.controls p, .receiver p { margin: 12px 0 0; font-size: 13px; line-height: 1.8; }
+.controls p { margin-top: 6px; font-size: 11px; line-height: 1.6; }
+.buzzerMount {
+  display: grid; place-items: center; width: 116px; height: 116px; flex-shrink: 0;
+  margin: 4px auto 10px; padding: 10px; border: 2px solid #737c70; border-radius: 50%;
+  background: linear-gradient(145deg, #f4f4eb, #a4aaa0 45%, #646d62 55%, #dce0d5);
+  box-shadow: 0 4px 0 #636b60, 0 7px 10px #28332e38, inset 0 2px 1px #fff;
+}
+.pushButton {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  width: 92px; height: 92px; padding: 8px; border: 2px solid;
+  border-color: #ed8f7f #8b3029 #70251f #d46958; border-radius: 50%;
+  background: radial-gradient(ellipse at 35% 20%, #e8816d, #bb4537 55%, #902e27);
+  color: #fff4df; font: inherit; font-size: 12px; font-weight: 700; line-height: 1.5;
+  text-align: center; text-shadow: 0 1px 2px #651e19; cursor: pointer;
+  transform: translateY(-5px);
+  box-shadow: 0 7px 0 #67251f, 0 9px 6px #232a2366, inset 0 2px 3px #ffc0a580, inset 0 -3px 6px #70251f66;
+  transition: transform 100ms ease, box-shadow 100ms ease, filter 100ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.bellIcon { width: 24px; height: 24px; flex-shrink: 0; }
+.pushButton:hover:not(:disabled) { filter: brightness(1.08); }
+.pushButton:active:not(:disabled), .pushButton:disabled {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 #67251f, 0 2px 3px #232a2366, inset 0 2px 5px #70251f66;
+}
+.pushButton:focus-visible { outline: 3px solid #09675f; outline-offset: 8px; }
+.pushButton:disabled { cursor: wait; filter: saturate(.65); }
+.pauseButton {
+  border-color: #ffe2a0 #9b702b #76521b #e7bc68;
+  background: radial-gradient(ellipse at 35% 20%, #ffe5a7, #d5a44f 55%, #aa762b);
+  color: #3c2c14; text-shadow: 0 1px #ffe5a7;
+}
+.resumeButton {
+  border-color: #c1e0a6 #517144 #344f2a #94b978;
+  background: radial-gradient(ellipse at 35% 20%, #c9e7ac, #81a568 55%, #537a44);
+  color: #172b14; text-shadow: 0 1px #c9e7ac;
+}
+@media (prefers-reduced-motion: reduce) { .pushButton { transition: none; } }
+.button {
+  min-height: 48px; padding: 12px 24px; border: 3px solid;
+  border-color: #f5f6ed #697563 #596451 #e8edde; border-radius: 3px;
+  background: linear-gradient(#dce5ce, #a9b89b); color: #263822;
+  box-shadow: 0 5px 0 #56644d; font: inherit; font-weight: 700; cursor: pointer;
+}
+.button:hover:not(:disabled) { background: #e3ecd8; }
+.button:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 #56644d; }
+.button:focus-visible { outline: 3px solid #09675f; outline-offset: 4px; }
+.button:disabled { opacity: .6; cursor: wait; }
+.receiver {
+  position: fixed; bottom: 0; right: 0; left: 260px; z-index: 20;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 16px;
+  padding: 16px 24px; background: #c8ccc3; color: #28332e;
+  border: 3px solid; border-color: #f4f5ef #828b80 #727c71 #f4f5ef;
+  box-shadow: 0 -3px 12px #28332e26;
+}
+.receiver > div { flex: 1 1 240px; }
+.active { background: #f1da9b; border-color: #fff3d4 #aa843c #896523 #fff3d4; }
+.entryPaused { background: #f1ccc0; color: #64291f; border-color: #fff0e8 #a95340 #843c2c #fff0e8; }
+@media (max-width: 760px) { .receiver { left: 0; padding: 16px; } }

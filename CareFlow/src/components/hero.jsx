@@ -1,4 +1,5 @@
 import styles from "./hero.module.css";
+import { Link } from 'react-router-dom';
 
 export default function Hero() {
   return (
@@ -16,10 +17,13 @@ export default function Hero() {
           نظّم يوم عيادتك مع كيرفلو. طريقة أبسط لإدارة العمل،
           لتمنح مرضاك الاهتمام الذي يستحقونه.
         </p>
+        <div className={styles.actions}>
         <a href="#pricing" className={styles.button}>
           اختر باقتك <span aria-hidden="true">&#8592;</span>
         </a>
-        <p className={styles.note}>باقات تبدأ من ١٥ دولارًا شهريًا</p>
+        <Link to="/demo" className={`${styles.button} ${styles.demoButton}`}>جرّب بدون تسجيل</Link>
+        </div>
+        <p className={styles.note}>باقات تبدأ من ٢٢٬٥٠٠ دينار عراقي شهريًا</p>
         <div className={styles.signature} aria-hidden="true">
           <span /> إدارة أسهل. رعاية أفضل. <span />
         </div>
