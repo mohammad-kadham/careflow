@@ -4,7 +4,7 @@ description: "ملخص قصير يوضح ما سيجده القارئ في ال�
 date: "2026-10-08"
 author: "فريق كيرفلو"
 category: "دليل كيرفلو"
-draft: false
+draft: true
 ---
 
 اكتب مقدمة jjjjالمقال هنا.
