@@ -39,7 +39,7 @@ export async function loadPosts(directory) {
   return posts.filter(post => !post.draft).sort((a, b) => b.date.localeCompare(a.date) || a.slug.localeCompare(b.slug));
 }
 
-export function blogContent() {
+export function blogContent({ contentDirectory = 'content/blog' } = {}) {
   const publicId = 'virtual:blog-posts';
   const resolvedId = '\0' + publicId;
   let directory;
@@ -47,7 +47,7 @@ export function blogContent() {
   return {
     name: 'careflow-blog',
     configResolved(config) {
-      directory = path.resolve(config.root, 'content/blog');
+      directory = path.resolve(config.root, contentDirectory);
       isBuild = config.command === 'build';
     },
     resolveId(id) { if (id === publicId) return resolvedId; },

@@ -7,7 +7,8 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { createServer } from 'vite';
-import { parsePost, loadPosts } from '../scripts/blog-content.mjs';
+import react from '@vitejs/plugin-react';
+import { blogContent, parsePost, loadPosts } from '../scripts/blog-content.mjs';
 
 const source = (metadata = '', body = '## Section\n\nArticle text.') => `---\ntitle: "مقال تجريبي"\ndescription: "ملخص المقال"\ndate: "2026-10-08"\n${metadata}---\n\n${body}`;
 
@@ -45,11 +46,27 @@ test('publication excludes draft content and sorts posts newest first', async t 
 });
 
 test('blog routes render published articles, missing pages and safe Markdown', async t => {
-  const server = await createServer({ server: { middlewareMode: true, hmr: false }, logLevel: 'silent' });
-  t.after(() => server.close());
+  // Isolate fixtures from editable articles. A published post may reuse a draft's title.
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'careflow-blog-routes-'));
+  let server;
+  t.after(async () => {
+    await server?.close();
+    await rm(directory, { recursive: true, force: true });
+  });
+  const sharedTitle = 'عنوان المقال الجديد';
+  const fixture = body => source('', body).replace('مقال تجريبي', sharedTitle);
+  await Promise.all([
+    writeFile(path.join(directory, 'published-post.md'), fixture('## Section\n\nPUBLIC-ARTICLE-BODY\n\n| One | Two |\n| --- | --- |\n| A | B |')),
+    writeFile(path.join(directory, 'draft-post.md'), fixture('UNPUBLISHED-DRAFT-BODY').replace('---\n\n', 'draft: true\n---\n\n')),
+  ]);
+  server = await createServer({
+    configFile: false, plugins: [react(), blogContent({ contentDirectory: directory })],
+    server: { middlewareMode: true, hmr: false }, logLevel: 'silent',
+  });
   const clientModule = await server.transformRequest('virtual:blog-posts');
-  assert.match(clientModule.code, /organize-your-clinic-day/);
-  assert.doesNotMatch(clientModule.code, /post-template|عنوان المقال الجديد/);
+  assert.match(clientModule.code, /published-post/);
+  assert.match(clientModule.code, new RegExp(sharedTitle));
+  assert.doesNotMatch(clientModule.code, /draft-post|UNPUBLISHED-DRAFT-BODY/);
   const { default: BlogPage } = await server.ssrLoadModule('/src/pages/blog.jsx');
   const { default: BlogMarkdown } = await server.ssrLoadModule('/src/components/blog-markdown.jsx');
   const render = entry => renderToStaticMarkup(createElement(MemoryRouter, { initialEntries: [entry] },
@@ -57,13 +74,15 @@ test('blog routes render published articles, missing pages and safe Markdown', a
       createElement(Route, { path: '/blog', element: createElement(BlogPage) }),
       createElement(Route, { path: '/blog/:slug', element: createElement(BlogPage) }))));
   const listing = render('/blog');
-  assert.match(listing, /\/blog\/organize-your-clinic-day/);
-  assert.doesNotMatch(listing, /post-template|عنوان المقال الجديد/);
-  const article = render('/blog/organize-your-clinic-day');
+  assert.match(listing, /\/blog\/published-post/);
+  assert.match(listing, new RegExp(sharedTitle));
+  assert.doesNotMatch(listing, /draft-post|UNPUBLISHED-DRAFT-BODY/);
+  const article = render('/blog/published-post');
+  assert.match(article, /PUBLIC-ARTICLE-BODY/);
   assert.match(article, /<table>/);
-  assert.match(article, /<h2>ابدأ من سجل المريض<\/h2>/);
+  assert.match(article, /<h2>Section<\/h2>/);
   assert.equal((article.match(/<h1>/g) || []).length, 1);
-  for (const slug of ['missing', 'post-template']) assert.match(render('/blog/' + slug), /المقال غير موجود/);
+  for (const slug of ['missing', 'draft-post']) assert.match(render('/blog/' + slug), /المقال غير موجود/);
   const unsafe = renderToStaticMarkup(createElement(BlogMarkdown, null,
     '<script>alert(1)</script>\n\n[bad](javascript:alert%281%29)\n\n<img src=x onerror=alert(1)>\n\n**Safe text**'));
   assert.doesNotMatch(unsafe, /<script|onerror|javascript:/i);
