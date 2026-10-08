@@ -8,9 +8,13 @@ import SignupPage from './pages/signup';
 import VerifyEmailPage from './pages/verify-email';
 import ProtectedApp from './auth/protected-app';
 const DemoPage = lazy(() => import('./pages/demo'));
+const BlogPage = lazy(() => import('./pages/blog'));
+const blogElement = <Suspense fallback={<p dir="rtl" role="status">جارٍ تحميل المدونة…</p>}><BlogPage/></Suspense>;
 
 const router = createBrowserRouter([
   {path:"/",element:<HomePage/>},
+  {path:"/blog",element:blogElement},
+  {path:"/blog/:slug",element:blogElement},
   {path:"/login",element:<LoginPage/>},
   {path:"/signup",element:<SignupPage/>},
   {path:"/verify-email",element:<VerifyEmailPage/>},

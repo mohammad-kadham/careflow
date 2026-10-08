@@ -61,3 +61,10 @@ New doctor and staff accounts confirm their email before login. Configure the Br
 verified sender, and frontend origin before deploying or testing account creation. See
 [backend/EMAIL-VERIFICATION.md](backend/EMAIL-VERIFICATION.md) for setup, resend recovery,
 and verification behavior. Existing accounts keep their access when the migration runs.
+
+## Blog
+
+The public `/blog` page loads Markdown articles from `content/blog/`. Copy
+`post-template.md` to add a post, change its metadata and text, and set `draft: false`
+to publish with the next deployment. See [BLOG.md](BLOG.md) for GitHub editing,
+images, local previews, and publishing instructions.

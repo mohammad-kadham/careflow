@@ -10,9 +10,10 @@ export default function Header() {
           <span>كيرفلو<span className={styles.dot}>.</span></span>
         </Link>
         <nav className={styles.nav} aria-label="التنقل الرئيسي">
-          <a href="#features">المميزات</a>
-          <a href="#how-it-works">كيف يعمل؟</a>
-          <a href="#pricing">الأسعار</a>
+          <a href="/#features">المميزات</a>
+          <Link to="/demo">كيف يعمل؟</Link>
+          <a href="/#pricing">الأسعار</a>
+          <Link to="/blog">المدونة</Link>
         </nav>
         <div className={styles.actions}>
           <Link to="/login" className={styles.button}>تسجيل الدخول</Link>

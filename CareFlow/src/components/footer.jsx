@@ -21,14 +21,15 @@ export default function Footer() {
           <nav className={styles.nav} aria-label="روابط التذييل">
             <h2 className={styles.heading}>اكتشف كيرفلو</h2>
             <Link to="/">الرئيسية</Link>
-            <a href="#features">المميزات</a>
-            <a href="#pricing">الباقات والأسعار</a>
+            <a href="/#features">المميزات</a>
+            <a href="/#pricing">الباقات والأسعار</a>
+            <Link to="/blog">المدونة</Link>
           </nav>
 
           <div className={styles.start}>
             <h2 className={styles.heading}>خطوتك نحو عيادة أكثر تنظيمًا</h2>
             <p>اختر الباقة التي تناسب عيادتك.</p>
-            <a href="#pricing" className={styles.button}>
+            <a href="/#pricing" className={styles.button}>
               اشترك الآن <span aria-hidden="true">&#8592;</span>
             </a>
           </div>
