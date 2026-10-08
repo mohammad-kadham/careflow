@@ -36,8 +36,8 @@ export default function SignupPage() {
         submittingRef.current = true;
         setSubmitting(true);
         try {
-            await signUp(formValues);
-            navigate(`/login${location.search}`, { replace: true, state: { reason: 'signed-up' } });
+            const result = await signUp(formValues);
+            navigate(`/verify-email${location.search}`, { replace: true, state: { email: formValues.email.trim(), emailSent: result.emailSent } });
         } catch (failure) {
             setError(failure instanceof TypeError
                 ? 'تعذر تأكيد إنشاء الحساب. تحقق من الاتصال؛ إذا كان الحساب قد أُنشئ، يمكنك تسجيل الدخول.'

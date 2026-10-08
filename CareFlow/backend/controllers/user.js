@@ -4,6 +4,15 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validationResult, matchedData } = require('express-validator');
 const auth = require('../config/auth');
+const verification = require('../services/email-verification');
+
+async function sendVerification(user) {
+    try { return await verification.sendFor(user); }
+    catch {
+        console.error('Verification email delivery failed.');
+        return false;
+    }
+}
 
 function validateRequest(req, res) {
     const errors = validationResult(req);
@@ -29,10 +38,12 @@ exports.signup = async (req, res, next) => {
         const { name, email, password, clinic_name, phone } = matchedData(req, { locations: ['body'] });
         const [rows] = await User.findUserByEmail(email);
         if (rows[0]) return res.status(409).json({ error: 'Email already exists.' });
+        verification.assertConfigured();
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await User.createDoctor({ name, email, password: hashedPassword, clinic_name, phone });
-        res.status(201).json({ message: 'User created. Please log in.', user: publicUser(user) });
+        const emailSent = await sendVerification(user);
+        res.status(201).json({ message: 'Verify your email before logging in.', user: publicUser(user), verificationRequired: true, emailSent });
     } catch (error) {
         if (error.code === 'ER_DUP_ENTRY') {
             return res.status(409).json({ error: 'Email already exists.' });
@@ -60,12 +71,14 @@ exports.createStaff = async (req, res, next) => {
         if (duplicates.length) {
             return res.status(409).json({ code: 'EMAIL_EXISTS', error: 'البريد الإلكتروني مسجل بالفعل.' });
         }
+        verification.assertConfigured();
         const hashedPassword = await bcrypt.hash(password, 10);
         // Role, doctor and clinic always come from the authenticated doctor.
         const staff = new User(name, email, hashedPassword, 'staff', req.user.clinic_name, phone, req.user.id, req.user.clinic_id);
         const [result] = await staff.save();
         staff.id = result.insertId;
-        res.status(201).json({ message: 'تم إنشاء حساب الموظف.', user: publicUser(staff) });
+        const emailSent = await sendVerification(staff);
+        res.status(201).json({ message: 'تم إنشاء الحساب. يجب تأكيد بريد الموظف قبل تسجيل الدخول.', user: publicUser(staff), verificationRequired: true, emailSent });
     } catch (error) {
         if (error.code === 'ER_DUP_ENTRY') {
             return res.status(409).json({ code: 'ACCOUNT_CONFLICT', error: 'البريد مسجل أو تم إنشاء حساب موظف لهذا الطبيب. حدّث القائمة.' });
@@ -82,6 +95,10 @@ exports.login = async (req, res, next) => {
         const user = rows[0];
         if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ error: 'Email or password is incorrect.' });
+        }
+        if (Number(user.email_verification_required) === 1 && !user.email_verified_at) {
+            res.clearCookie(auth.cookieName, auth.cookieOptions);
+            return res.status(403).json({ code: 'EMAIL_NOT_VERIFIED', error: 'يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول.' });
         }
 
         const token = jwt.sign({ userId: user.id }, auth.secret, {

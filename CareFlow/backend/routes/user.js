@@ -4,6 +4,8 @@ const { body } = require('express-validator');
 const userControllers = require('../controllers/user');
 const { requireAuth } = require('../middleware/auth');
 const { requireDoctor } = require('../middleware/roles');
+const rateLimit = require('../middleware/rate-limit');
+const emailVerification = require('../controllers/email-verification');
 
 const router = express.Router();
 
@@ -21,7 +23,7 @@ router.use((req, res, next) => {
     next();
 });
 
-router.post('/user/new', [
+router.post('/user/new', rateLimit({ limit: 20, windowMs: 60 * 60 * 1000 }), [
     body('name').isString().bail().trim().isLength({ min: 1, max: 100 })
         .withMessage('Name is required (maximum 100 characters).'),
     body('clinic_name').isString().bail().trim().isLength({ min: 1, max: 150 })
@@ -37,6 +39,11 @@ router.post('/user/login', [
     emailValidation(),
     passwordValidation(),
 ], userControllers.login);
+
+router.post('/user/verification/resend', rateLimit({ limit: 10, windowMs: 60 * 60 * 1000 }), [emailValidation()], emailVerification.resend);
+router.post('/user/verification/confirm', rateLimit({ limit: 60, windowMs: 60 * 60 * 1000 }), [
+    body('token').isString().bail().matches(/^[0-9a-f]{64}$/),
+], emailVerification.verify);
 
 router.get('/user/staff', requireAuth, requireSubscription, requireDoctor, userControllers.getStaff);
 router.post('/user/staff', requireAuth, requireSubscription, requireDoctor, [

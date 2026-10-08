@@ -31,12 +31,12 @@ require.cache[dbPath] = {
             }
             if (sql.includes('WHERE u.id')) {
                 return [users.filter(user => user.id === params[0])
-                    .map(({ id, name, email, role, clinic_name, phone, doctor_id, clinic_id, subscription_active, subscription_required }) => ({ id, name, email, role, clinic_name, phone, doctor_id, clinic_id, subscription_active, subscription_required }))];
+                    .map(({ id, name, email, role, clinic_name, phone, doctor_id, clinic_id, subscription_active, subscription_required, email_verification_required, email_verified_at }) => ({ id, name, email, role, clinic_name, phone, doctor_id, clinic_id, subscription_active, subscription_required, email_verification_required, email_verified_at }))];
             }
             if (sql.startsWith('INSERT INTO users')) {
                 const [name, email, password, role, clinic_name, phone, doctor_id, clinic_id] = params;
                 assert.match(sql, /role, clinic_name, phone/);
-                const user = { id: 8, name, email, password, role, clinic_name, phone, doctor_id, clinic_id, subscription_required: 1, subscription_active: 0 };
+                const user = { id: 8, name, email, password, role, clinic_name, phone, doctor_id, clinic_id, subscription_required: 1, subscription_active: 0, email_verification_required: 1 };
                 users.push(user);
                 return [{ insertId: user.id }];
             }
@@ -46,6 +46,9 @@ require.cache[dbPath] = {
     },
 };
 
+const verification = require('../services/email-verification');
+verification.assertConfigured = () => {};
+verification.sendFor = async () => true;
 const app = require('../server');
 const auth = require('../config/auth');
 
@@ -205,6 +208,9 @@ test('JWT authentication over HTTP (no real database access)', async t => {
         assert.equal(body.user.phone, '+964 07701234567');
         assert.equal(users[1].clinic_name, body.user.clinic_name);
         assert.equal(users[1].phone, body.user.phone);
+        assert.equal(body.verificationRequired, true);
+        assert.equal((await fetch(base + '/user/me', { headers: { Cookie: cookieFor({ userId: 8 }) } })).status, 403);
+        users[1].email_verified_at = new Date();
         const profile = await fetch(base + '/user/me', { headers: { Cookie: cookieFor({ userId: 8 }) } });
         assert.equal(profile.status, 200);
         assert.deepEqual((await profile.json()).user, body.user);
