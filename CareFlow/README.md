@@ -68,3 +68,9 @@ The public `/blog` page loads Markdown articles from `content/blog/`. Copy
 `post-template.md` to add a post, change its metadata and text, and set `draft: false`
 to publish with the next deployment. See [BLOG.md](BLOG.md) for GitHub editing,
 images, local previews, and publishing instructions.
+
+## Subscription admin
+
+The separate `/admin/` app lets the authorized owner review payment reports,
+approve or reject transfers, manage subscriptions, and inspect an audit history.
+See [ADMIN.md](ADMIN.md) for access configuration and operation.

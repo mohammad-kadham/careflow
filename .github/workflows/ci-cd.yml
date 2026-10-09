@@ -128,4 +128,7 @@ jobs:
           test "$(curl --fail --silent --show-error --retry 3 --max-time 20 "$DEPLOY_URL/version.txt")" = "$GITHUB_SHA"
           curl --fail --silent --show-error --retry 3 --max-time 20 "$DEPLOY_URL/" -o /dev/null
           test "$(curl --silent --show-error --max-time 20 -o /dev/null -w '%{http_code}' "$DEPLOY_URL/api/user/me")" = 401
-          echo 'Production revision and HTTPS checks passed.'
+          curl --fail --silent --show-error --retry 3 --max-time 20 "$DEPLOY_URL/admin/" -o /dev/null
+          test "$(curl --silent --show-error --max-time 20 -o /dev/null -w '%{http_code}' "$DEPLOY_URL/api/admin/me")" = 401
+          test "$(curl --silent --show-error --max-time 20 -o /dev/null -w '%{http_code}' "$DEPLOY_URL/api/admin/payments")" = 401
+          echo 'Production revision, admin access protection and HTTPS checks passed.'

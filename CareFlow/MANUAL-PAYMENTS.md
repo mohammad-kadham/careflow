@@ -4,7 +4,11 @@ Payment destination: **Qi Card — 07736250346**. Prices remain **22,500 IQD/mon
 
 The customer creates an account, logs in, chooses a plan, and transfers the amount outside CareFlow. They then press **لقد دفعت (I've paid)** and submit their sender phone and transaction number. CareFlow stores a pending report linked to their authenticated user and clinic, with the selected plan and server-set amount. Reports survive page reloads and transaction numbers are unique, so retries cannot create duplicate reports. CareFlow does not initiate a transfer, check Qi Card transactions, or treat a report as proof of payment. No card numbers, PINs, or payment credentials are collected.
 
-After checking receipt of the actual payment, activate the matching clinic in the database. There is deliberately no customer-accessible activation API. Selecting a plan only changes payment instructions; the database determines the approved plan and expiry.
+After checking receipt of the actual payment, approve the report in the separate
+[subscription admin app](https://app-careflow.com/admin/). See [ADMIN.md](ADMIN.md)
+for owner access, approvals, subscription changes, and audit history. Customer
+accounts cannot access the admin API. Selecting a plan in the customer app only
+changes payment instructions; the database determines the approved plan and expiry.
 
 ## Deploying the backend
 
@@ -18,11 +22,13 @@ Restart it with its usual startup command (`npm start` or `npm run dev`). Its ex
 
 Startup also runs `data/migrations/add-payment-reports.js` to create `manual_payment_reports`. Authenticated doctors can submit and view their own clinic's reports through `/user/payment-reports`, even before activation. Staff cannot submit reports. The customer interface shows the latest 20 reports; the database keeps the full history. Prices are defined in `src/billing.js` for display and `controllers/payment-reports.js` in the backend for saved report amounts; update both when changing prices.
 
-Deploy/restart the backend before using the updated frontend. These migrations have not been run against your live database by this change.
+Deploy/restart the backend before using the updated frontend. Migrations run at startup.
 
 ## Finding customers who reported payment
 
-Run this in the database to see pending reports with the customer's name, email, clinic, sender phone, transfer number, plan, and amount. No email or push notification is sent; this query is your review queue.
+The admin app is the preferred review queue and records an audit trail. The queries
+below are an operational fallback; direct SQL changes are not recorded in the admin
+audit history. No email or push notification is sent when a report arrives.
 
 ```sql
 SELECT p.id AS report_id, p.submitted_at, u.name AS customer_name,
