@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { adminRequest, subscriptionStatus, localDateInput } from '../src/admin/api.js';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { createServer } from 'vite';
 
 test('admin requests use separate endpoints, cookies and JSON without storing credentials', async t => {
   const calls = [];
@@ -24,4 +27,21 @@ test('subscription display distinguishes legacy access, unpaid and expired clini
   assert.equal(subscriptionStatus({ required: 1, active: 0, expiresAt: null }), 'غير مفعّل');
   const source = '2027-01-01T12:30:00.000Z';
   assert.equal(new Date(localDateInput(source)).toISOString(), source);
+});
+
+test('shared trial code can be created only before setup and then shows the same reusable code', async t => {
+  const server = await createServer({ server: { middlewareMode: true, hmr: false }, logLevel: 'silent' });
+  t.after(() => server.close());
+  const { SharedTrialCode } = await server.ssrLoadModule('/src/admin/trial-codes.jsx');
+  const render = code => renderToStaticMarkup(createElement(SharedTrialCode, { code }));
+  assert.match(render(null), /إنشاء الرمز المشترك/);
+  const code = { code: 'CF-ABCDEF-123456-789ABC-DEF012', plan: 'advanced', usageCount: 2, status: 'available' };
+  const html = render(code);
+  assert.match(html, /CF-ABCDEF-123456-789ABC-DEF012/);
+  assert.match(html, /مرة واحدة/);
+  assert.match(html, /المتقدمة/);
+  assert.match(html, /عدد العيادات المستفيدة/);
+  assert.match(html, /تعطيل الرمز/);
+  assert.doesNotMatch(html, /إنشاء الرمز المشترك/);
+  assert.match(render({ ...code, status: 'disabled' }), /إعادة تفعيل الرمز/);
 });

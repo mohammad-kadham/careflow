@@ -13,6 +13,13 @@ const users = [
     { id: 3, email: 'staff@example.com', role: 'staff', password: bcrypt.hashSync(password, 4) },
 ];
 const sessions = new Map(), mutations = [];
+const trialCalls = [];
+const trialPath = require.resolve('../models/trial-codes');
+require.cache[trialPath] = { id: trialPath, filename: trialPath, loaded: true, exports: {
+    list: async input => { trialCalls.push(['list', input]); return { rows: [], hasMore: false }; },
+    create: async (input, actorId) => { trialCalls.push(['create', input, actorId]); return { id: 1, code: 'TEST-CODE', plan: input.plan }; },
+    setEnabled: async enabled => { trialCalls.push(['setEnabled', enabled]); },
+} };
 const userPath = require.resolve('../models/users');
 require.cache[userPath] = { id: userPath, filename: userPath, loaded: true, exports: {
     findUserByEmail: async email => [users.filter(user => user.email === email)],
@@ -38,6 +45,9 @@ test('admin authentication is separate, restricted, revocable and protected agai
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
     assert.equal((await request('/payments')).status, 401);
+    assert.equal((await request('/trial-codes')).status, 401);
+    assert.equal((await request('/trial-codes', { plan: 'basic', requestId: randomUUID() })).status, 401);
+    assert.equal((await request('/trial-codes/status', { enabled: false })).status, 401);
     assert.equal((await request('/payments', undefined, 'careflow_session=customer-token')).status, 401);
     for (const email of ['doctor@example.com', 'staff@example.com', 'missing@example.com']) assert.equal((await request('/login', { email, password })).status, 401);
     users[0].email_verified_at = null;
@@ -69,6 +79,19 @@ test('admin authentication is separate, restricted, revocable and protected agai
     assert.equal((await request('/payments?page=0', undefined, cookie)).status, 400);
     assert.equal((await request('/payments?status=anything', undefined, cookie)).status, 400);
     assert.equal(mutations.length, 1);
+    assert.equal((await request('/trial-codes?page=0', undefined, cookie)).status, 400);
+    assert.equal((await request('/trial-codes', undefined, cookie)).status, 200);
+    const trialRequest = { plan: 'advanced', requestId: randomUUID() };
+    for (const invalid of [{ ...trialRequest, plan: 'unknown' }, { ...trialRequest, requestId: '' }]) {
+        assert.equal((await request('/trial-codes', invalid, cookie)).status, 400);
+    }
+    assert.equal((await request('/trial-codes', trialRequest, cookie, { Origin: 'https://evil.example' })).status, 403);
+    assert.equal((await request('/trial-codes', { ...trialRequest, days: 999, actorId: 999 }, cookie)).status, 200);
+    assert.equal((await request('/trial-codes/status', { enabled: 'false' }, cookie)).status, 400);
+    assert.equal((await request('/trial-codes/status', { enabled: false }, cookie, { Origin: 'https://evil.example' })).status, 403);
+    assert.equal((await request('/trial-codes/status', { enabled: false }, cookie)).status, 200);
+    assert.equal((await request('/trial-codes/status', { enabled: true }, cookie)).status, 200);
+    assert.deepEqual(trialCalls, [['list', { page: 1 }], ['create', trialRequest, 1], ['setEnabled', false], ['setEnabled', true]]);
     assert.equal((await request('/logout', {}, cookie)).status, 200);
     assert.equal((await request('/me', undefined, cookie)).status, 401, 'Logout revokes a copied cookie');
     for (let index = 0; index < 10; index++) await request('/login', { email: 'missing@example.com', password });

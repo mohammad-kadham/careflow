@@ -4,8 +4,9 @@ import { manualPayment, selectedPlanId, subscriptionPlans } from '../billing';
 import { apiFetch } from '../api';
 import styles from './auth.module.css';
 import billingStyles from './subscription.module.css';
+import TrialRedemption from '../components/trial-redemption';
 
-export default function SubscriptionPage({ user, onLogout, loggingOut, logoutError }) {
+export default function SubscriptionPage({ user, onLogout, loggingOut, logoutError, onSubscriptionChanged }) {
     const [params, setParams] = useSearchParams();
     const [showForm, setShowForm] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -85,6 +86,10 @@ export default function SubscriptionPage({ user, onLogout, loggingOut, logoutErr
                 <div><dt>البريد الإلكتروني</dt><dd><bdi>{user.email}</bdi></dd></div>
             </dl>
             {isDoctor && <>
+                {!active && <TrialRedemption onRedeemed={subscription => {
+                    if (subscription.active) setNotice('تم تفعيل التجربة المجانية لمدة ١٠ أيام. يمكنك الآن الدخول إلى مساحة العمل.');
+                    onSubscriptionChanged?.(subscription);
+                }} />}
                 <fieldset className={billingStyles.plans} disabled={submitting}>
                     <legend>اختر الباقة الشهرية</legend>
                     {subscriptionPlans.map(item => <label key={item.id}>

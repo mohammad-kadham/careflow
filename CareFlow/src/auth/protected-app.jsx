@@ -83,6 +83,12 @@ export default function ProtectedApp({ billingOnly = false }) {
     if (session.status === 'authenticated') {
         if (billingOnly || session.user.subscription?.active !== true) {
             return <SubscriptionPage user={session.user}
+                onSubscriptionChanged={subscription => {
+                    sessionRequestRef.current++;
+                    setSession(previous => previous.status === 'authenticated' && !logoutRef.current &&
+                        previous.user.id === session.user.id && previous.user.clinic_id === session.user.clinic_id
+                        ? { ...previous, user: { ...previous.user, subscription } } : previous);
+                }}
                 onLogout={handleLogout} loggingOut={loggingOut} logoutError={logoutError} />;
         }
         return <AppPage key={`${session.user.id}:${session.user.clinic_id}:${session.user.role}`}

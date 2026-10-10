@@ -46,10 +46,15 @@ test('subscription screen shows transfer details only to doctors and preserves p
     assert.match(doctor, /CF-42-advanced/);
     assert.match(doctor, /test@example.com/);
     assert.match(doctor, /لقد دفعت/);
+    assert.match(doctor, /id="trial-code"/);
+    assert.match(doctor, /تفعيل ١٠ أيام مجاناً/);
+    assert.match(doctor, /يمكن استخدام الرمز مرة واحدة فقط لكل عيادة/);
     assert.doesNotMatch(doctor, /التحقق من تفعيل الاشتراك/);
     assert.doesNotMatch(doctor, /الانتقال إلى مساحة العمل/);
     assert.match(render('doctor', true), /الانتقال إلى مساحة العمل/);
+    assert.doesNotMatch(render('doctor', true), /id="trial-code"/);
     const staff = render('staff');
     assert.doesNotMatch(staff, /qicard\.jpeg|07736250346|CF-42/);
+    assert.doesNotMatch(staff, /id="trial-code"/);
     assert.match(staff, /التواصل مع الطبيب/);
 });

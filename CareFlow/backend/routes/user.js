@@ -73,4 +73,6 @@ router.post('/user/logout', userControllers.logout);
 const paymentReports = require('../controllers/payment-reports');
 router.get('/user/payment-reports', requireAuth, requireDoctor, paymentReports.list);
 router.post('/user/payment-reports', requireAuth, requireDoctor, paymentReports.create);
+router.post('/user/trial-code', requireAuth, requireDoctor,
+    rateLimit({ limit: 10, windowMs: 15 * 60 * 1000 }), require('../controllers/trial-codes').redeem);
 module.exports = router;

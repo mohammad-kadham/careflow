@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const { randomBytes } = require('node:crypto');
 const User = require('../models/users');
 const model = require('../models/admin');
+const trials = require('../models/trial-codes');
 const auth = require('../middleware/admin');
 const rateLimit = require('../middleware/rate-limit');
 const router = express.Router();
@@ -37,6 +38,22 @@ router.post('/logout', async (req, res, next) => {
 router.use(auth.requireAdmin);
 router.get('/me', (req, res) => res.json({ user: publicUser(req.admin) }));
 router.get('/summary', async (req, res, next) => { try { res.json(await model.summary()); } catch (error) { next(error); } });
+router.get('/trial-codes', async (req, res, next) => {
+    const { page = '1' } = req.query;
+    if (typeof page !== 'string' || !/^[1-9]\d{0,5}$/.test(page)) return invalid(res);
+    try { res.json(await trials.list({ page: Number(page) })); } catch (error) { next(error); }
+});
+router.post('/trial-codes', async (req, res, next) => {
+    const { plan, requestId } = req.body || {};
+    if (!['basic', 'advanced'].includes(plan) || typeof requestId !== 'string' ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(requestId)) return invalid(res);
+    try { res.json({ code: await trials.create({ plan, requestId: requestId.toLowerCase() }, req.admin.id) }); } catch (error) { next(error); }
+});
+router.post('/trial-codes/status', async (req, res, next) => {
+    const { enabled } = req.body || {};
+    if (typeof enabled !== 'boolean') return invalid(res);
+    try { await trials.setEnabled(enabled); res.json({ ok: true }); } catch (error) { next(error); }
+});
 for (const name of ['payments', 'clinics', 'audit']) {
     router.get('/' + name, async (req, res, next) => {
         const { q = '', status = 'pending', page = '1' } = req.query;

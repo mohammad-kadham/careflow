@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { adminRequest, localDateInput, subscriptionStatus } from './api';
+import { SharedTrialCode } from './trial-codes';
 
 const plans = { basic: 'الأساسية', advanced: 'المتقدمة' };
 const decisions = { pending: 'بانتظار المراجعة', approved: 'مقبول', rejected: 'مرفوض' };
@@ -68,7 +69,7 @@ function Dashboard({ user, onLogout }) {
     catch (error) { setNotice(errorText(error)); setLogoutBusy(false); }
   }
   function completed() { setModal(null); setNotice('تم حفظ التغيير بنجاح.'); setRevision(value => value + 1); }
-  const titles = { payments: 'بلاغات الدفع', clinics: 'اشتراكات العيادات', audit: 'سجل التغييرات' };
+  const titles = { payments: 'بلاغات الدفع', clinics: 'اشتراكات العيادات', 'trial-codes': 'رمز التجربة المجانية', audit: 'سجل التغييرات' };
   return <div className="admin-shell">
     <aside className="sidebar"><Brand /><span className="eyebrow">لوحة الإدارة</span><nav aria-label="أقسام الإدارة">
       {Object.entries(titles).map(([id, label]) => <button key={id} className={view === id ? 'nav-active' : ''} aria-current={view === id ? 'page' : undefined} onClick={() => switchView(id)}>{label}{id === 'payments' && summary && <span>{Number(summary.pending).toLocaleString('ar-IQ')}</span>}</button>)}
@@ -82,11 +83,13 @@ function Dashboard({ user, onLogout }) {
       </section>
       {view === 'payments' && <p className="info">البلاغ يعني أن العميل أبلغ عن تحويل. تحقق من وصول المبلغ إلى حساب Qi Card قبل الموافقة. قبول البلاغ يضيف شهرًا واحدًا للاشتراك.</p>}
       {notice && <p role="status" className="notice">{notice}</p>}
+      {view === 'trial-codes' && loaded && !result.error && <SharedTrialCode code={result.code} onDone={() => { setPage(1); completed(); }} onUnauthorized={onLogout} />}
       <section className="panel">
         <div className="toolbar">
-          {view !== 'audit' && <form onSubmit={event => { event.preventDefault(); setQ(search.trim()); setPage(1); }} className="search"><label className="sr-only" htmlFor="search">بحث</label><input id="search" placeholder={view === 'payments' ? 'اسم، بريد، هاتف أو رقم التحويل…' : 'اسم العيادة، الطبيب، البريد أو رقم العيادة…'} value={search} onChange={event => setSearch(event.target.value)} maxLength={150} /><button className="secondary">بحث</button></form>}
+          {['payments', 'clinics'].includes(view) && <form onSubmit={event => { event.preventDefault(); setQ(search.trim()); setPage(1); }} className="search"><label className="sr-only" htmlFor="search">بحث</label><input id="search" placeholder={view === 'payments' ? 'اسم، بريد، هاتف أو رقم التحويل…' : 'اسم العيادة، الطبيب، البريد أو رقم العيادة…'} value={search} onChange={event => setSearch(event.target.value)} maxLength={150} /><button className="secondary">بحث</button></form>}
           {view === 'payments' && <label className="filter">حالة البلاغ<select value={status} onChange={event => { setStatus(event.target.value); setPage(1); }}><option value="pending">بانتظار المراجعة</option><option value="approved">مقبول</option><option value="rejected">مرفوض</option><option value="all">الكل</option></select></label>}
           {view === 'audit' && <p>سجل القرارات ومن قام بها. جميع الأوقات حسب توقيت جهازك.</p>}
+          {view === 'trial-codes' && <p>العيادات التي استخدمت الرمز المشترك. المدة: ١٠ أيام من التفعيل لكل عيادة.</p>}
         </div>
         {!loaded ? <p className="empty" role="status">جارٍ تحميل البيانات…</p> : result.error ? <p className="empty error" role="alert">{result.error}</p> : !result.rows.length ? <div className="empty"><h2>لا توجد نتائج</h2><p>{q ? 'جرّب البحث بكلمات أخرى.' : view === 'payments' ? 'ستظهر هنا بلاغات الدفع التي يرسلها العملاء.' : 'لا توجد سجلات لعرضها حاليًا.'}</p></div> : <>
           <div className="table-scroll" role="region" aria-label={titles[view]} tabIndex={0}><table>
@@ -100,6 +103,9 @@ function Dashboard({ user, onLogout }) {
               <td><strong>{row.name}</strong><small>عيادة #{row.id}</small></td><td><strong>{row.customerName || '—'}</strong><small dir="ltr">{row.email || '—'}</small></td>
               <td><span className={`badge ${Number(row.active) ? 'approved' : 'rejected'}`}>{subscriptionStatus(row)}</span><small>{plans[row.plan] || 'بدون باقة'}</small></td>
               <td>{dateText(row.expiresAt)}</td><td><button className="small secondary" onClick={() => setModal({ type: 'clinic', row })}>إدارة الاشتراك</button></td>
+            </tr>)}</tbody></> : view === 'trial-codes' ? <><thead><tr><th>العيادة</th><th>استخدمه</th><th>تاريخ التفعيل</th><th>نهاية التجربة</th></tr></thead><tbody>{result.rows.map(row => <tr key={row.id}>
+              <td><strong>{row.clinicName}</strong><small>عيادة #{row.id}</small></td>
+              <td>{row.redeemedBy}</td><td>{dateText(row.redeemedAt)}</td><td>{dateText(row.expiresAt)}</td>
             </tr>)}</tbody></> : <><thead><tr><th>العملية</th><th>العيادة</th><th>التغيير</th><th>السبب</th><th>المسؤول</th></tr></thead><tbody>{result.rows.map(row => <tr key={row.id}>
               <td><strong>{actions[row.action]}</strong><small>{dateText(row.createdAt)}</small>{row.reportId && <small>بلاغ #{row.reportId}</small>}</td>
               <td>{row.clinicName}<small>#{row.clinicId}</small></td><td><AuditState value={row.beforeState} label="قبل" /><AuditState value={row.afterState} label="بعد" /></td><td className="reason">{row.reason}</td><td>{row.actorName}</td>

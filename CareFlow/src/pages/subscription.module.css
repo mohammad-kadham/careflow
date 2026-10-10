@@ -1,4 +1,8 @@
 .details { display: grid; gap: 12px; margin: 0 0 24px; }
+.trial { padding: 20px; margin-bottom: 24px; border: 1px solid #b9dfd8; border-radius: 14px; background: #f4faf7; }
+.trial h2 { margin: 0 0 8px; font-size: 20px; }
+.trial p { font-size: 14px; line-height: 1.8; }
+.trial form { display: grid; gap: 12px; }
 .details div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
 .details dt { color: #526563; }
 .details dd { margin: 0; overflow-wrap: anywhere; }
