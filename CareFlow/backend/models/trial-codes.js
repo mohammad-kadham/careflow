@@ -2,6 +2,11 @@ const db = require('../data/db');
 const { randomBytes } = require('node:crypto');
 const fail = (statusCode, message) => { throw Object.assign(new Error(message), { statusCode }); };
 
+exports.availableCode = async () => {
+    const [[row]] = await db.query('SELECT code FROM trial_codes WHERE id = 1 AND disabled_at IS NULL');
+    return row?.code || null;
+};
+
 exports.list = async ({ page }) => {
     const [[code]] = await db.query(`SELECT t.id, t.code, t.plan,
         CASE WHEN t.disabled_at IS NOT NULL THEN 'disabled' ELSE 'available' END AS status,

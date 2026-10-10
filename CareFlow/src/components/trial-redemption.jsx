@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { apiFetch } from '../api';
 import styles from '../pages/auth.module.css';
 import billingStyles from '../pages/subscription.module.css';
@@ -6,7 +6,25 @@ import billingStyles from '../pages/subscription.module.css';
 export default function TrialRedemption({ onRedeemed }) {
     const [busy, setBusy] = useState(false), [error, setError] = useState('');
     const [notice, setNotice] = useState('');
+    const [sharedCode, setSharedCode] = useState({ loading: true, code: null, error: false });
+    const [reload, setReload] = useState(0);
     const pending = useRef(false);
+    useEffect(() => {
+        const controller = new AbortController();
+        async function loadCode() {
+            try {
+                const response = await apiFetch('/user/trial-code', { signal: controller.signal });
+                if (!response.ok) throw new Error('Unable to load trial code');
+                const result = await response.json();
+                if (result?.code !== null && typeof result?.code !== 'string') throw new Error('Invalid trial code response');
+                if (!controller.signal.aborted) setSharedCode({ loading: false, code: result.code, error: false });
+            } catch {
+                if (!controller.signal.aborted) setSharedCode({ loading: false, code: null, error: true });
+            }
+        }
+        loadCode();
+        return () => controller.abort();
+    }, [reload]);
     async function redeem(event) {
         event.preventDefault();
         if (pending.current) return;
@@ -31,6 +49,12 @@ export default function TrialRedemption({ onRedeemed }) {
         <form onSubmit={redeem} aria-label="تفعيل التجربة المجانية" aria-busy={busy}>
             <div className={styles.field}>
                 <label htmlFor="trial-code">رمز التجربة</label>
+                {sharedCode.loading ? <span role="status">جارٍ تحميل رمز التجربة…</span>
+                    : sharedCode.error ? <div role="alert">تعذر تحميل الرمز. <button type="button" className={billingStyles.retryCode} onClick={() => {
+                        setSharedCode({ loading: true, code: null, error: false }); setReload(value => value + 1);
+                    }}>إعادة المحاولة</button></div>
+                        : sharedCode.code ? <code className={billingStyles.sharedCode} dir="ltr" aria-label="رمز التجربة المتاح">{sharedCode.code}</code>
+                            : <span>رمز التجربة غير متاح حالياً.</span>}
                 <input id="trial-code" name="code" type="text" dir="ltr" placeholder="CF-XXXXXX-XXXXXX-XXXXXX-XXXXXX"
                     autoComplete="off" autoCapitalize="characters" spellCheck={false} maxLength={40} required disabled={busy} aria-describedby="trial-help" />
             </div>

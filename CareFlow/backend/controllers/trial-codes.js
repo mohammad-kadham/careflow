@@ -2,6 +2,11 @@ const trials = require('../models/trial-codes');
 const User = require('../models/users');
 const { subscriptionFor } = require('../middleware/subscription');
 
+exports.available = async (req, res, next) => {
+    try { res.json({ code: await trials.availableCode() }); }
+    catch (error) { next(error); }
+};
+
 exports.redeem = async (req, res, next) => {
     const raw = req.body?.code;
     if (typeof raw !== 'string' || raw.length > 80) return res.status(400).json({ error: 'أدخل رمز تجربة صالحاً.' });

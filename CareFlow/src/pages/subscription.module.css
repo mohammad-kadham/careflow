@@ -3,6 +3,8 @@
 .trial h2 { margin: 0 0 8px; font-size: 20px; }
 .trial p { font-size: 14px; line-height: 1.8; }
 .trial form { display: grid; gap: 12px; }
+.sharedCode { display: block; padding: 12px; border: 1px dashed #8fb7aa; border-radius: 10px; background: #fff; color: #09675f; font-size: 15px; text-align: center; overflow-wrap: anywhere; user-select: all; }
+.retryCode { border: 0; padding: 0; background: none; color: #09675f; font: inherit; text-decoration: underline; cursor: pointer; }
 .details div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
 .details dt { color: #526563; }
 .details dd { margin: 0; overflow-wrap: anywhere; }

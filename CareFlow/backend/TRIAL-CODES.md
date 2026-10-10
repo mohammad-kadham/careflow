@@ -11,3 +11,5 @@ The owner can disable or re-enable the same code. Disabling it prevents new rede
 The duration and granted plan come from the server. The client cannot choose either or submit another clinic's ID. Redemption requires a verified doctor session and is limited to ten requests per IP per fifteen minutes. Owner-only administration uses the existing separate admin session.
 
 Validation: `npm test`, `npm run test:backend`, `npm run lint`, and `npm run build`. Backend tests use mocked persistence and do not replace a live MySQL migration/concurrency check.
+
+The active shared code is displayed directly above the redemption input for signed-in, verified doctors. GET /user/trial-code returns only the enabled code (or null when it is missing or disabled); it does not expose admin details or clinic redemption history.
