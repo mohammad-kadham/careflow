@@ -12,6 +12,8 @@ Production must set NODE_ENV=production and use HTTPS, which enables Secure cook
 - POST /user/login: email, password. Sets the HttpOnly careflow_session cookie for one hour and returns public user details. No token is returned in JSON.
 - GET /user/me: returns public user details for the current session, or 401.
 - POST /user/logout: clears the browser cookie, even if already expired. Send an empty JSON object.
+- POST /user/password-reset/request: email. Returns the same generic 202 response for existing and unknown accounts.
+- POST /user/password-reset/confirm: token, password. Consumes a single-use 30-minute link, changes the password, and invalidates existing user and admin sessions. See PASSWORD-RESET.md.
 - All patient, queue and visit routes now require the session cookie. /test has been removed.
 
 For POST requests, send Content-Type: application/json.
@@ -40,7 +42,7 @@ Clinic name (up to 150 characters) and phone (up to 40 characters) are stored on
 Existing accounts keep NULL for these fields until updated. Startup adds missing columns without deleting data; it can also be run with: node data/migrations/add-user-signup-fields.js.
 Password confirmation is a frontend check and is never stored.
 Logout clears the browser cookie; a previously copied JWT remains valid until its one-hour expiration.
-There is no refresh token or persistent server-side revocation list. Deleted users are rejected immediately.
+There is no refresh token or per-JWT revocation list. Password reset increments a persistent per-user authentication version checked on every request, invalidating that user's existing JWTs and admin sessions. Deleted users are rejected immediately.
 The JWT verifies HS256, issuer, audience, expiry, and numeric database user ID.
 Changing JWT_SECRET invalidates existing cookies.
 

@@ -101,7 +101,7 @@ exports.login = async (req, res, next) => {
             return res.status(403).json({ code: 'EMAIL_NOT_VERIFIED', error: 'يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول.' });
         }
 
-        const token = jwt.sign({ userId: user.id }, auth.secret, {
+        const token = jwt.sign({ userId: user.id, authVersion: Number(user.auth_version ?? 0) }, auth.secret, {
             algorithm: 'HS256',
             expiresIn: auth.lifetimeSeconds,
             issuer: auth.issuer,

@@ -17,6 +17,7 @@ export default function LoginPage() {
         'signed-out': 'تم تسجيل الخروج بنجاح.',
         'signed-up': 'تم إنشاء حسابك بنجاح. سجّل الدخول للمتابعة.',
         'email-verified': 'تم تأكيد بريدك الإلكتروني. سجّل الدخول للمتابعة.',
+        'password-reset': 'تم تغيير كلمة السر بنجاح. سجّل الدخول بكلمة السر الجديدة.',
     };
 
     const isNotEmail = didEdit.email && !inputValues.email.includes('@');
@@ -81,6 +82,7 @@ export default function LoginPage() {
                             onChange={(e) => handleInputChange('password', e.target.value)}
                             onBlur={() => handleInputBlur('password')} />
                         {invalidPassword && <p id="password-error" className={styles.error} role="alert">يرجى إدخال كلمة السر.</p>}
+                        <Link to="/forgot-password" state={{ email: inputValues.email.trim() }}>نسيت كلمة السر؟</Link>
                     </div>
                     {error && <p className={styles.error} role="alert">{error}</p>}
                     <button type="submit" className={styles.button} disabled={submitting}>

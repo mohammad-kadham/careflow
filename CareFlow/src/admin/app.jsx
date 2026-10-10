@@ -25,6 +25,7 @@ function Login({ onLogin }) {
     <form onSubmit={submit}>
       <label>البريد الإلكتروني<input type="email" name="email" autoComplete="username" dir="ltr" required maxLength={255} /></label>
       <label>كلمة المرور<input type="password" name="password" autoComplete="current-password" required /></label>
+      <a href="/forgot-password">نسيت كلمة السر؟</a>
       {error && <p className="error" role="alert">{error}</p>}
       <button disabled={busy}>{busy ? 'جارٍ تسجيل الدخول…' : 'تسجيل الدخول للإدارة'}</button>
     </form><p className="muted">هذه المساحة متاحة لحساب الإدارة المخوّل فقط.</p><a href="/">العودة إلى موقع كيرفلو ←</a>

@@ -42,6 +42,7 @@ async function requireAuth(req, res, next) {
     try {
         const [rows] = await User.findUserById(payload.userId);
         if (!rows[0]) return unauthorized(res);
+        if ((payload.authVersion ?? 0) !== Number(rows[0].auth_version ?? 0)) return unauthorized(res);
         if (Number(rows[0].email_verification_required) === 1 && !rows[0].email_verified_at) {
             res.clearCookie(auth.cookieName, auth.cookieOptions);
             return res.status(403).json({ code: 'EMAIL_NOT_VERIFIED', error: 'يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول.' });

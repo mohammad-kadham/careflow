@@ -6,11 +6,11 @@ const clinicFields = `c.id, c.name, c.subscription_required AS required,
     DATE_FORMAT(c.subscription_expires_at, '%Y-%m-%dT%H:%i:%sZ') AS expiresAt,
     COALESCE((c.subscription_required = 0 OR (c.subscription_plan IN ('basic', 'advanced') AND c.subscription_expires_at > UTC_TIMESTAMP())), 0) AS active`;
 
-exports.createSession = async (hash, userId) => {
+exports.createSession = async (hash, userId, authVersion = 0) => {
     await db.query('DELETE FROM admin_sessions WHERE expires_at <= UTC_TIMESTAMP()');
-    await db.query('INSERT INTO admin_sessions (token_hash, user_id, expires_at) VALUES (?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL 30 MINUTE))', [hash, userId]);
+    await db.query('INSERT INTO admin_sessions (token_hash, user_id, auth_version, expires_at) VALUES (?, ?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL 30 MINUTE))', [hash, userId, authVersion]);
 };
-exports.findSession = hash => db.query('SELECT user_id FROM admin_sessions WHERE token_hash = ? AND expires_at > UTC_TIMESTAMP()', [hash]);
+exports.findSession = hash => db.query('SELECT user_id, auth_version FROM admin_sessions WHERE token_hash = ? AND expires_at > UTC_TIMESTAMP()', [hash]);
 exports.deleteSession = hash => db.query('DELETE FROM admin_sessions WHERE token_hash = ?', [hash]);
 
 exports.summary = async () => {

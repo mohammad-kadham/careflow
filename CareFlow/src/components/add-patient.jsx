@@ -111,8 +111,6 @@ export default function AddPatient({ canEditMedical = false }) {
                             <option value="">اختر الجنس</option>
                             <option value="male">ذكر</option>
                             <option value="female">أنثى</option>
-                            <option value="other">آخر</option>
-                            <option value="prefer-not-to-say">يفضل عدم الإفصاح</option>
                         </select>
                     </div>
                 </fieldset>

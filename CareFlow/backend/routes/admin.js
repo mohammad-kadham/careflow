@@ -22,7 +22,7 @@ router.post('/login', rateLimit({ limit: 10, windowMs: 15 * 60 * 1000 }), async 
         const oldToken = auth.tokenFrom(req);
         if (oldToken) await model.deleteSession(auth.hash(oldToken));
         const token = randomBytes(32).toString('hex');
-        await model.createSession(auth.hash(token), user.id);
+        await model.createSession(auth.hash(token), user.id, Number(user.auth_version ?? 0));
         res.cookie(auth.cookieName, token, { ...auth.cookieOptions, maxAge: 30 * 60 * 1000 });
         res.json({ user: publicUser(user) });
     } catch (error) { next(error); }

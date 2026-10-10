@@ -21,7 +21,7 @@ async function requireAdmin(req, res, next) {
         const token = tokenFrom(req);
         const [[session]] = token ? await model.findSession(hash(token)) : [[]];
         const [[user]] = session ? await User.findUserById(session.user_id) : [[]];
-        if (!allowed(user)) {
+        if (!allowed(user) || Number(session.auth_version ?? 0) !== Number(user.auth_version ?? 0)) {
             res.clearCookie(cookieName, cookieOptions);
             return res.status(401).json({ error: 'سجّل الدخول بحساب الإدارة للمتابعة.' });
         }

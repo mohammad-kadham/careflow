@@ -40,6 +40,13 @@ router.post('/user/login', [
     passwordValidation(),
 ], userControllers.login);
 
+const passwordReset = require('../controllers/password-reset');
+router.post('/user/password-reset/request', rateLimit({ limit: 5, windowMs: 15 * 60 * 1000 }), [emailValidation()], passwordReset.request);
+router.post('/user/password-reset/confirm', rateLimit({ limit: 20, windowMs: 15 * 60 * 1000 }), [
+    body('token').isString().bail().matches(/^[0-9a-f]{64}$/),
+    passwordValidation().bail().isLength({ min: 6 }),
+], passwordReset.confirm);
+
 router.post('/user/verification/resend', rateLimit({ limit: 10, windowMs: 60 * 60 * 1000 }), [emailValidation()], emailVerification.resend);
 router.post('/user/verification/confirm', rateLimit({ limit: 60, windowMs: 60 * 60 * 1000 }), [
     body('token').isString().bail().matches(/^[0-9a-f]{64}$/),

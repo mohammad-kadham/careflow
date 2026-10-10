@@ -44,7 +44,7 @@ class User {
 
     static findUserById(id) {
         return db.query(
-            "SELECT u.id, u.name, u.email, u.role, u.email_verification_required, u.email_verified_at, c.subscription_required, c.subscription_plan, DATE_FORMAT(c.subscription_expires_at, '%Y-%m-%dT%H:%i:%sZ') AS subscription_expires_at, (c.subscription_required = 0 OR (c.subscription_plan IN ('basic', 'advanced') AND c.subscription_expires_at > UTC_TIMESTAMP())) AS subscription_active, c.name AS clinic_name, u.phone, u.doctor_id, u.clinic_id FROM users u JOIN clinics c ON c.id = u.clinic_id WHERE u.id = ?", [id]
+            "SELECT u.id, u.name, u.email, u.role, u.auth_version, u.email_verification_required, u.email_verified_at, c.subscription_required, c.subscription_plan, DATE_FORMAT(c.subscription_expires_at, '%Y-%m-%dT%H:%i:%sZ') AS subscription_expires_at, (c.subscription_required = 0 OR (c.subscription_plan IN ('basic', 'advanced') AND c.subscription_expires_at > UTC_TIMESTAMP())) AS subscription_active, c.name AS clinic_name, u.phone, u.doctor_id, u.clinic_id FROM users u JOIN clinics c ON c.id = u.clinic_id WHERE u.id = ?", [id]
         );
     }
 }
