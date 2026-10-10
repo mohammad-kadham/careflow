@@ -18,7 +18,8 @@
 .transfer { padding: 20px; border: 1px solid #b9dfd8; border-radius: 14px; background: #edf7f4; line-height: 1.9; }
 .transfer h2 { margin: 0 0 12px; font-size: 20px; }
 .transfer p { margin: 10px 0; }
-.phone { font-size: clamp(24px, 6vw, 32px); font-weight: 750; letter-spacing: 2px; text-align: center; color: #09675f; user-select: all; }
+.qrCode { display: block; width: 100%; max-width: 320px; height: auto; margin: 16px auto 8px; background: #fff; }
+.qrDownload { display: block; width: fit-content; margin: 0 auto 16px; color: #09675f; font-weight: 700; text-underline-offset: 4px; }
 .actions { display: grid; gap: 12px; margin-top: 24px; }
 .actions a { text-align: center; }
 .paymentForm, .reports { margin-top: 24px; text-align: right; }

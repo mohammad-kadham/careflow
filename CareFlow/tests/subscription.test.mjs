@@ -8,7 +8,7 @@ import { apiFetch, onSubscriptionRequired } from '../src/api.js';
 import { selectedPlanId, subscriptionPlans, manualPayment } from '../src/billing.js';
 
 test('manual payment details use the supplied destination and existing plan prices', () => {
-    assert.equal(manualPayment.phone, '07736250346');
+    assert.equal(manualPayment.qrCode, '/payments/qicard.jpeg');
     assert.deepEqual(subscriptionPlans.map(plan => plan.price), [22500, 37500]);
     assert.equal(selectedPlanId('advanced'), 'advanced');
     assert.equal(selectedPlanId('untrusted'), 'basic');
@@ -40,7 +40,9 @@ test('subscription screen shows transfer details only to doctors and preserves p
         subscription: { active, plan: null, expiresAt: null },
     } })));
     const doctor = render('doctor');
-    assert.match(doctor, /07736250346/);
+    assert.match(doctor, /<img[^>]+src="\/payments\/qicard\.jpeg"/);
+    assert.match(doctor, /download="careflow-qi-card\.jpeg"/);
+    assert.doesNotMatch(doctor, /07736250346/);
     assert.match(doctor, /CF-42-advanced/);
     assert.match(doctor, /test@example.com/);
     assert.match(doctor, /لقد دفعت/);
@@ -48,6 +50,6 @@ test('subscription screen shows transfer details only to doctors and preserves p
     assert.doesNotMatch(doctor, /الانتقال إلى مساحة العمل/);
     assert.match(render('doctor', true), /الانتقال إلى مساحة العمل/);
     const staff = render('staff');
-    assert.doesNotMatch(staff, /07736250346|CF-42/);
+    assert.doesNotMatch(staff, /qicard\.jpeg|07736250346|CF-42/);
     assert.match(staff, /التواصل مع الطبيب/);
 });

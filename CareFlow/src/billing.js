@@ -1,4 +1,4 @@
-export const manualPayment = { service: 'Qi Card', phone: '07736250346', currency: 'IQD' };
+export const manualPayment = { service: 'Qi Card', qrCode: '/payments/qicard.jpeg', currency: 'IQD' };
 
 export const subscriptionPlans = [
     { id: 'basic', name: 'الأساسية', price: 22500 },

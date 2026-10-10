@@ -107,8 +107,9 @@ export default function SubscriptionPage({ user, onLogout, loggingOut, logoutErr
                 </fieldset>
                 <section className={billingStyles.transfer} aria-label="تفاصيل التحويل اليدوي">
                     <h2>التحويل عبر {manualPayment.service}</h2>
-                    <p>أرسل <strong>{plan.price.toLocaleString('ar-IQ')} د.ع</strong> إلى الرقم:</p>
-                    <p className={billingStyles.phone}><bdi dir="ltr">{manualPayment.phone}</bdi></p>
+                    <p>امسح رمز QR أدناه لتحويل <strong>{plan.price.toLocaleString('ar-IQ')} د.ع</strong> عبر Qi Card:</p>
+                    <img className={billingStyles.qrCode} src={manualPayment.qrCode} alt="رمز QR للدفع عبر Qi Card" width="1137" height="1033" />
+                    <a className={billingStyles.qrDownload} href={manualPayment.qrCode} download="careflow-qi-card.jpeg">تنزيل رمز QR</a>
                     <p>مرجع الاشتراك: <strong><bdi>CF-{user.clinic_id}-{plan.id}</bdi></strong></p>
                     <p>بعد التحويل، اضغط «لقد دفعت» وأدخل رقم هاتف المرسل ورقم العملية الموجود في الإيصال. سيُربط الطلب بحسابك وعيادتك تلقائياً.</p>
                     <p>احتفظ بالإيصال. التفعيل يتم يدوياً بعد مراجعة التحويل.</p>
