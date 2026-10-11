@@ -1,0 +1,85 @@
+.page {
+    box-sizing: border-box;
+    min-height: 100svh;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    background: radial-gradient(ellipse at top right, #dff2eb, transparent 60%), #f7fbf9;
+    color: #172b2a;
+    color-scheme: light;
+    text-align: center;
+}
+
+.page * { box-sizing: border-box; }
+.brand { color: #172b2a; font-size: 27px; font-weight: 750; text-decoration: none; }
+.brand span { color: #0d8278; }
+
+.card {
+    width: 100%;
+    max-width: 560px;
+    padding: 40px;
+    border: 1px solid #dceae5;
+    border-radius: 24px;
+    background: #fff;
+    box-shadow: 0 18px 60px rgb(23 43 42 / 6%);
+}
+
+.symbol {
+    display: grid;
+    place-items: center;
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 24px;
+    border: 1px solid #ccded7;
+    border-radius: 28px;
+    background: #edf6f1;
+    color: #09675f;
+    font-size: 36px;
+    font-weight: 750;
+    line-height: 1;
+}
+
+.eyebrow { color: #09675f; font-size: 13px; font-weight: 650; }
+.card h1 {
+    margin: 8px 0 12px;
+    color: #172b2a;
+    font-size: clamp(26px, 4vw, 34px);
+    font-weight: 700;
+    line-height: 1.6;
+    letter-spacing: normal;
+}
+.description { color: #526563; font-size: 15px; line-height: 2; }
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 28px; }
+.primary, .secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px;
+    padding: 12px 22px;
+    border: 1px solid #0d8278;
+    border-radius: 999px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 650;
+    text-decoration: none;
+    cursor: pointer;
+}
+.primary { background: #0d8278; color: #fff; }
+.primary:hover { background: #09675f; }
+.secondary { background: #fff; color: #09675f; }
+.secondary:hover { background: #edf6f1; }
+.page a:focus-visible, .page button:focus-visible, .card h1:focus-visible {
+    outline: 2px solid #0d8278;
+    outline-offset: 5px;
+}
+.note { margin-top: 20px; color: #526563; font-size: 12px; line-height: 1.9; }
+.footer { color: #526563; font-size: 12px; line-height: 1.9; }
+
+@media (max-width: 560px) {
+    .page { padding: 28px 16px; gap: 20px; }
+    .card { padding: 28px 20px; border-radius: 18px; }
+    .actions { flex-direction: column; }
+}

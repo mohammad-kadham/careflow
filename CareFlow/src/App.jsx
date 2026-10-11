@@ -9,11 +9,14 @@ import VerifyEmailPage from './pages/verify-email';
 import ForgotPasswordPage from './pages/forgot-password';
 import ResetPasswordPage from './pages/reset-password';
 import ProtectedApp from './auth/protected-app';
+import ErrorPage from './pages/error';
 const DemoPage = lazy(() => import('./pages/demo'));
 const BlogPage = lazy(() => import('./pages/blog'));
 const blogElement = <Suspense fallback={<p dir="rtl" role="status">جارٍ تحميل المدونة…</p>}><BlogPage/></Suspense>;
 
-const router = createBrowserRouter([
+const router = createBrowserRouter([{
+  errorElement: <ErrorPage/>,
+  children: [
   {path:"/",element:<HomePage/>},
   {path:"/blog",element:blogElement},
   {path:"/blog/:slug",element:blogElement},
@@ -25,8 +28,9 @@ const router = createBrowserRouter([
   {path:"/app",element:<ProtectedApp/>},
   {path:"/subscription",element:<ProtectedApp billingOnly/>},
   {path:"/demo",element:<Suspense fallback={<p dir="rtl" role="status">جارٍ تحميل العرض التجريبي…</p>}><DemoPage/></Suspense>},
-
-])
+  {path:"*",element:<ErrorPage notFound/>},
+  ],
+}])
 function App() {
   return (
     <RouterProvider router={router}/>
