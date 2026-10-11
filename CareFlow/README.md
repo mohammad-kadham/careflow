@@ -37,6 +37,29 @@ The API uses port 8080 and Vite normally uses port 5173. Use the same hostname f
 
 Open `/demo` to try sample data without a database or account. Demo data resets on reload.
 
+## Traffic analytics
+
+Cloudflare Web Analytics loads in production on `app-careflow.com` and
+`www.app-careflow.com` for the homepage, blog, and demo only. Local development,
+preview hosts, authentication, clinic, subscription, admin, and unknown routes
+do not load the beacon. Moving between public and excluded routes loads a fresh
+document because removing the script alone does not remove its SPA listeners.
+Public-to-public navigation continues to use React Router and Cloudflare's SPA tracking.
+
+View traffic in Cloudflare **Web Analytics** for `app-careflow.com`. The embedded
+site token is public, not an API credential. Use manual snippet installation;
+do not also enable automatic Cloudflare injection or install another copy of the
+beacon, which would bypass these exclusions or double-count visits. Referrers
+are limited to the origin so account links do not pass their query parameters
+to subsequent pages. No custom events, form contents, or patient identifiers
+are sent by this integration.
+
+After deployment, visit the homepage and blog and check for the Cloudflare
+beacon and `/cdn-cgi/rum` requests in the browser network panel. Open `/login`
+and confirm the new document has no beacon; also test direct `/app` and `/admin/`
+visits. Allow a few minutes for dashboard data to arrive. Script blockers can
+prevent reporting, so these counts are not a complete access log.
+
 ## Verification
 
 ```sh

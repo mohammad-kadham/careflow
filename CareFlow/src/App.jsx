@@ -10,11 +10,15 @@ import ForgotPasswordPage from './pages/forgot-password';
 import ResetPasswordPage from './pages/reset-password';
 import ProtectedApp from './auth/protected-app';
 import ErrorPage from './pages/error';
+import { analyticsNavigation } from './analytics';
 const DemoPage = lazy(() => import('./pages/demo'));
 const BlogPage = lazy(() => import('./pages/blog'));
 const blogElement = <Suspense fallback={<p dir="rtl" role="status">جارٍ تحميل المدونة…</p>}><BlogPage/></Suspense>;
 
 const router = createBrowserRouter([{
+  loader: analyticsNavigation,
+  shouldRevalidate: () => true,
+  hydrateFallbackElement: <p dir="rtl" role="status">جارٍ تحميل الصفحة…</p>,
   errorElement: <ErrorPage/>,
   children: [
   {path:"/",element:<HomePage/>},
