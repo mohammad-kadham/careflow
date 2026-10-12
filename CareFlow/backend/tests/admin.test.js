@@ -45,6 +45,8 @@ test('admin authentication is separate, restricted, revocable and protected agai
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
     assert.equal((await request('/payments')).status, 401);
+    assert.equal((await request('/clinics')).status, 401);
+    assert.equal((await request('/clinics', undefined, 'careflow_session=customer-token')).status, 401);
     assert.equal((await request('/trial-codes')).status, 401);
     assert.equal((await request('/trial-codes', { plan: 'basic', requestId: randomUUID() })).status, 401);
     assert.equal((await request('/trial-codes/status', { enabled: false })).status, 401);
@@ -63,8 +65,16 @@ test('admin authentication is separate, restricted, revocable and protected agai
     assert.equal((await request('/me', undefined, cookie)).status, 200);
     assert.equal((await request('/me', undefined, cookie + '; ' + cookie)).status, 401);
     assert.equal((await request('/summary', undefined, cookie)).headers.get('cache-control'), 'no-store');
+    const clinicList = await request('/clinics?q=%20clinic%20&page=2', undefined, cookie);
+    assert.equal(clinicList.status, 200);
+    assert.equal(clinicList.headers.get('cache-control'), 'no-store');
+    assert.deepEqual((await clinicList.json()).filters, { q: 'clinic', status: 'pending', page: 2 });
+    for (const query of ['page=0', 'page=-1', 'page=1.5', 'q=one&q=two', `q=${'x'.repeat(151)}`]) {
+        assert.equal((await request('/clinics?' + query, undefined, cookie)).status, 400);
+    }
     process.env.ADMIN_USER_IDS = '';
     assert.equal((await request('/me', undefined, cookie)).status, 401, 'Removing authorization invalidates existing sessions');
+    assert.equal((await request('/clinics', undefined, cookie)).status, 401);
     process.env.ADMIN_USER_IDS = '1';
     const review = { action: 'approve', confirmed: true, reason: 'Receipt verified', requestId: randomUUID(), plan: 'advanced', clinicId: 999, actorId: 999 };
     assert.equal((await request('/payments/4/review', review, cookie, { Origin: 'https://evil.example' })).status, 403);

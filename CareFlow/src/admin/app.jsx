@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { adminRequest, localDateInput, subscriptionStatus } from './api';
 import { SharedTrialCode } from './trial-codes';
+import ClinicDirectory from './clinics';
 
 const plans = { basic: 'الأساسية', advanced: 'المتقدمة' };
 const decisions = { pending: 'بانتظار المراجعة', approved: 'مقبول', rejected: 'مرفوض' };
@@ -47,7 +48,7 @@ export default function AdminApp() {
   return <Dashboard user={session.user} onLogout={() => setSession({ user: null })} />;
 }
 
-function Dashboard({ user, onLogout }) {
+export function Dashboard({ user, onLogout }) {
   const [view, setView] = useState('payments'), [status, setStatus] = useState('pending');
   const [search, setSearch] = useState(''), [q, setQ] = useState(''), [page, setPage] = useState(1);
   const [revision, setRevision] = useState(0), [result, setResult] = useState(null), [summary, setSummary] = useState(null);
@@ -55,13 +56,14 @@ function Dashboard({ user, onLogout }) {
   const query = new URLSearchParams({ page, q, status }).toString();
   const key = `${view}?${query}&revision=${revision}`;
   const loaded = result?.key === key;
+  const endpoint = view === 'all-clinics' ? 'clinics' : view;
   useEffect(() => {
     const controller = new AbortController();
-    Promise.all([adminRequest(`/${view}?${query}`, { signal: controller.signal }), adminRequest('/summary', { signal: controller.signal })])
+    Promise.all([adminRequest(`/${endpoint}?${query}`, { signal: controller.signal }), adminRequest('/summary', { signal: controller.signal })])
       .then(([data, counts]) => { if (!controller.signal.aborted) { setResult({ key, ...data }); setSummary(counts); } })
       .catch(error => { if (!controller.signal.aborted) { if (error.status === 401) onLogout(); else setResult({ key, error: errorText(error) }); } });
     return () => controller.abort();
-  }, [view, query, key, onLogout]);
+  }, [endpoint, query, key, onLogout]);
   // A session change remounts this dashboard, clearing all customer data.
   function switchView(next) { setView(next); setSearch(''); setQ(''); setPage(1); setNotice(''); }
   async function logout() {
@@ -70,10 +72,10 @@ function Dashboard({ user, onLogout }) {
     catch (error) { setNotice(errorText(error)); setLogoutBusy(false); }
   }
   function completed() { setModal(null); setNotice('تم حفظ التغيير بنجاح.'); setRevision(value => value + 1); }
-  const titles = { payments: 'بلاغات الدفع', clinics: 'اشتراكات العيادات', 'trial-codes': 'رمز التجربة المجانية', audit: 'سجل التغييرات' };
+  const titles = { payments: 'بلاغات الدفع', 'all-clinics': 'جميع العيادات', clinics: 'اشتراكات العيادات', 'trial-codes': 'رمز التجربة المجانية', audit: 'سجل التغييرات' };
   return <div className="admin-shell">
     <aside className="sidebar"><Brand /><span className="eyebrow">لوحة الإدارة</span><nav aria-label="أقسام الإدارة">
-      {Object.entries(titles).map(([id, label]) => <button key={id} className={view === id ? 'nav-active' : ''} aria-current={view === id ? 'page' : undefined} onClick={() => switchView(id)}>{label}{id === 'payments' && summary && <span>{Number(summary.pending).toLocaleString('ar-IQ')}</span>}</button>)}
+      {Object.entries(titles).map(([id, label]) => <button key={id} className={view === id ? 'nav-active' : ''} aria-current={view === id ? 'page' : undefined} onClick={() => switchView(id)}>{label}{summary && ['payments', 'all-clinics'].includes(id) && <span>{Number(id === 'payments' ? summary.pending : summary.clinics).toLocaleString('ar-IQ')}</span>}</button>)}
     </nav><div className="sidebar-bottom"><span>{user.name}</span><small dir="ltr">{user.email}</small><button className="secondary" disabled={logoutBusy} onClick={logout}>تسجيل الخروج</button><a href="/" target="_blank" rel="noreferrer">فتح الموقع ↗</a></div></aside>
     <main className="workspace"><header className="workspace-heading"><div><span className="eyebrow">كيرفلو / الإدارة</span><h1>{titles[view]}</h1></div><button className="secondary" onClick={() => setRevision(value => value + 1)} disabled={!loaded}>تحديث البيانات ↻</button></header>
       <section className="stats" aria-label="ملخص الاشتراكات">
@@ -83,18 +85,20 @@ function Dashboard({ user, onLogout }) {
         <Stat label="إجمالي البلاغات المقبولة" value={summary ? money(summary.approvedIqd) : null} />
       </section>
       {view === 'payments' && <p className="info">البلاغ يعني أن العميل أبلغ عن تحويل. تحقق من وصول المبلغ إلى حساب Qi Card قبل الموافقة. قبول البلاغ يضيف شهرًا واحدًا للاشتراك.</p>}
+      {view === 'all-clinics' && <p className="info">جميع العيادات المسجّلة، بما فيها العيادات غير المفعّلة والمنتهية والعيادات بدون حساب طبيب. مرتّبة من الأحدث إلى الأقدم، ٢٥ عيادة في الصفحة.</p>}
       {notice && <p role="status" className="notice">{notice}</p>}
       {view === 'trial-codes' && loaded && !result.error && <SharedTrialCode code={result.code} onDone={() => { setPage(1); completed(); }} onUnauthorized={onLogout} />}
       <section className="panel">
         <div className="toolbar">
-          {['payments', 'clinics'].includes(view) && <form onSubmit={event => { event.preventDefault(); setQ(search.trim()); setPage(1); }} className="search"><label className="sr-only" htmlFor="search">بحث</label><input id="search" placeholder={view === 'payments' ? 'اسم، بريد، هاتف أو رقم التحويل…' : 'اسم العيادة، الطبيب، البريد أو رقم العيادة…'} value={search} onChange={event => setSearch(event.target.value)} maxLength={150} /><button className="secondary">بحث</button></form>}
+          {['payments', 'clinics', 'all-clinics'].includes(view) && <form onSubmit={event => { event.preventDefault(); setQ(search.trim()); setPage(1); }} className="search"><label className="sr-only" htmlFor="search">بحث</label><input id="search" placeholder={view === 'payments' ? 'اسم، بريد، هاتف أو رقم التحويل…' : 'اسم العيادة، الطبيب، البريد، الهاتف أو رقم العيادة…'} value={search} onChange={event => setSearch(event.target.value)} maxLength={150} /><button className="secondary">بحث</button>{view === 'all-clinics' && (search || q) && <button type="button" className="secondary" onClick={() => { setSearch(''); setQ(''); setPage(1); }}>مسح</button>}</form>}
+          {view === 'all-clinics' && <p className="muted">إجمالي العيادات في قاعدة البيانات: <strong>{summary ? Number(summary.clinics).toLocaleString('ar-IQ') : '—'}</strong></p>}
           {view === 'payments' && <label className="filter">حالة البلاغ<select value={status} onChange={event => { setStatus(event.target.value); setPage(1); }}><option value="pending">بانتظار المراجعة</option><option value="approved">مقبول</option><option value="rejected">مرفوض</option><option value="all">الكل</option></select></label>}
           {view === 'audit' && <p>سجل القرارات ومن قام بها. جميع الأوقات حسب توقيت جهازك.</p>}
           {view === 'trial-codes' && <p>العيادات التي استخدمت الرمز المشترك. المدة: ١٠ أيام من التفعيل لكل عيادة.</p>}
         </div>
         {!loaded ? <p className="empty" role="status">جارٍ تحميل البيانات…</p> : result.error ? <p className="empty error" role="alert">{result.error}</p> : !result.rows.length ? <div className="empty"><h2>لا توجد نتائج</h2><p>{q ? 'جرّب البحث بكلمات أخرى.' : view === 'payments' ? 'ستظهر هنا بلاغات الدفع التي يرسلها العملاء.' : 'لا توجد سجلات لعرضها حاليًا.'}</p></div> : <>
           <div className="table-scroll" role="region" aria-label={titles[view]} tabIndex={0}><table>
-            {view === 'payments' ? <><thead><tr><th>العميل والعيادة</th><th>التحويل</th><th>الباقة والمبلغ</th><th>الحالة</th><th>المراجعة</th></tr></thead><tbody>{result.rows.map(row => <tr key={row.id}>
+            {view === 'all-clinics' ? <ClinicDirectory rows={result.rows} onManage={row => setModal({ type: 'clinic', row })} /> : view === 'payments' ? <><thead><tr><th>العميل والعيادة</th><th>التحويل</th><th>الباقة والمبلغ</th><th>الحالة</th><th>المراجعة</th></tr></thead><tbody>{result.rows.map(row => <tr key={row.id}>
               <td><strong>{row.customerName}</strong><small dir="ltr">{row.email}</small><small>{row.clinicName} · #{row.clinicId}</small></td>
               <td><strong dir="ltr">{row.reference}</strong><small dir="ltr">{row.senderPhone}</small><small>{dateText(row.submittedAt)}</small></td>
               <td><strong>{money(row.amountIqd)}</strong><small>{plans[row.plan]} · شهر واحد</small></td>

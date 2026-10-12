@@ -45,3 +45,21 @@ test('shared trial code can be created only before setup and then shows the same
   assert.doesNotMatch(html, /إنشاء الرمز المشترك/);
   assert.match(render({ ...code, status: 'disabled' }), /إعادة تفعيل الرمز/);
 });
+
+test('all-clinics directory is discoverable and renders clinics with and without doctor accounts', async t => {
+  const server = await createServer({ server: { middlewareMode: true, hmr: false, ws: false }, logLevel: 'silent' });
+  t.after(() => server.close());
+  const { Dashboard } = await server.ssrLoadModule('/src/admin/app.jsx');
+  const dashboard = renderToStaticMarkup(createElement(Dashboard, { user: { name: 'Owner', email: 'owner@example.test' }, onLogout() {} }));
+  assert.match(dashboard, /جميع العيادات/);
+  assert.match(dashboard, /اشتراكات العيادات/);
+  const { default: ClinicDirectory } = await server.ssrLoadModule('/src/admin/clinics.jsx');
+  const rows = [
+    { id: 7, name: 'عيادة الاختبار', customerName: 'طبيب الاختبار', email: 'doctor@example.test', phone: '07700000001', doctorCount: 2, staffCount: 3, createdAt: '2026-10-01T00:00:00Z', required: 1, active: 1, plan: 'basic', expiresAt: '2027-01-01T00:00:00Z' },
+    { id: 8, name: '<script>clinic</script>', customerName: null, doctorCount: 0, staffCount: 0, required: 1, active: 0 },
+  ];
+  const html = renderToStaticMarkup(createElement('table', null, createElement(ClinicDirectory, { rows, onManage() {} })));
+  for (const text of ['عيادة الاختبار', 'طبيب الاختبار', 'doctor@example.test', '07700000001', 'الأطباء: ٢', 'الموظفون: ٣', 'لا يوجد حساب طبيب', 'الأطباء: ٠', 'تاريخ التسجيل', 'نشط', 'غير مفعّل']) assert.ok(html.includes(text), text);
+  assert.match(html, /إدارة اشتراك عيادة الاختبار — عيادة 7/);
+  assert.doesNotMatch(html, /<script>/);
+});

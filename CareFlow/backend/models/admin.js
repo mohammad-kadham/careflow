@@ -42,11 +42,15 @@ exports.payments = async ({ status, q, page }) => {
     return { rows: rows.slice(0, 25), hasMore: rows.length > 25 };
 };
 exports.clinics = async ({ q, page }) => {
-    const filter = q ? "WHERE (c.name LIKE ? ESCAPE '!' OR EXISTS (SELECT 1 FROM users u WHERE u.clinic_id = c.id AND u.role = 'doctor' AND (u.email LIKE ? ESCAPE '!' OR u.name LIKE ? ESCAPE '!')) OR CAST(c.id AS CHAR) = ?)" : '';
-    const values = q ? [searchTerm(q), searchTerm(q), searchTerm(q), q] : [];
+    const filter = q ? "WHERE (c.name LIKE ? ESCAPE '!' OR EXISTS (SELECT 1 FROM users u WHERE u.clinic_id = c.id AND u.role = 'doctor' AND (u.email LIKE ? ESCAPE '!' OR u.name LIKE ? ESCAPE '!' OR u.phone LIKE ? ESCAPE '!')) OR CAST(c.id AS CHAR) = ?)" : '';
+    const values = q ? [...Array(4).fill(searchTerm(q)), q] : [];
     const [rows] = await db.query(`SELECT ${clinicFields},
+        DATE_FORMAT(c.created_at, '%Y-%m-%dT%H:%i:%sZ') AS createdAt,
         (SELECT u.email FROM users u WHERE u.clinic_id = c.id AND u.role = 'doctor' ORDER BY u.id LIMIT 1) AS email,
-        (SELECT u.name FROM users u WHERE u.clinic_id = c.id AND u.role = 'doctor' ORDER BY u.id LIMIT 1) AS customerName
+        (SELECT u.name FROM users u WHERE u.clinic_id = c.id AND u.role = 'doctor' ORDER BY u.id LIMIT 1) AS customerName,
+        (SELECT u.phone FROM users u WHERE u.clinic_id = c.id AND u.role = 'doctor' ORDER BY u.id LIMIT 1) AS phone,
+        (SELECT COUNT(*) FROM users u WHERE u.clinic_id = c.id AND u.role = 'doctor') AS doctorCount,
+        (SELECT COUNT(*) FROM users u WHERE u.clinic_id = c.id AND u.role = 'staff') AS staffCount
         FROM clinics c ${filter} ORDER BY c.id DESC LIMIT 26 OFFSET ?`, [...values, (page - 1) * 25]);
     return { rows: rows.slice(0, 25), hasMore: rows.length > 25 };
 };

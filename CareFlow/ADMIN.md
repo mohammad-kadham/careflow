@@ -17,6 +17,20 @@ month to the later of the current expiry or now. Approval cannot be applied twic
 Reject a report with a reason when receipt cannot be confirmed. Rejection preserves
 the clinic's current subscription. Accepted/rejected reports remain in the history.
 
+## All clinics
+
+Open **جميع العيادات** to browse every clinic in the database, newest first, in
+pages of 25. This includes inactive, expired, legacy-access clinics, and clinics
+without a doctor account. The tab shows the clinic ID/name, registration date,
+first doctor's name/email/phone, doctor/staff account counts and subscription
+state. The total count is for the entire database, even when searching.
+
+Search by clinic name or ID, or any doctor's name, email or phone. **مسح** clears
+the search, and **تحديث البيانات** reloads the list. **إدارة الاشتراك** opens the
+existing subscription dialog. This uses the same owner-only `/admin/clinics`
+endpoint and exposes no patient records or account credentials. No database
+migration is needed.
+
 ## Manage subscriptions
 
 In **اشتراكات العيادات**, search for a clinic or doctor's email and select
