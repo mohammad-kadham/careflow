@@ -7,15 +7,15 @@ export default function Hero() {
       <div className={styles.content}>
         <p className={styles.eyebrow}>
           <span className={styles.indicator} aria-hidden="true" />
-          إدارة عيادتك ببساطة
+          برنامج إدارة العيادات في العراق
         </p>
         <h1 id="hero-title" className={styles.title}>
-          عيادة أكثر تنظيمًا.
+          إدارة عيادتك في مكان واحد.
           <span>ووقت أكبر للرعاية.</span>
         </h1>
         <p className={styles.description}>
-          نظّم يوم عيادتك مع كيرفلو. طريقة أبسط لإدارة العمل،
-          لتمنح مرضاك الاهتمام الذي يستحقونه.
+          نظّم سجلات المرضى وقائمة الانتظار والزيارات مع كيرفلو.
+          برنامج عربي يجمع عمل الطبيب والموظف، لتمنح مرضاك الاهتمام الذي يستحقونه.
         </p>
         <div className={styles.actions}>
         <a href="#pricing" className={styles.button}>

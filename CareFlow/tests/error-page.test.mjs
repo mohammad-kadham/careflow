@@ -35,7 +35,7 @@ test('error pages offer safe recovery for missing routes and failed requests', a
         for (const wildcard of [false, true]) {
             const html = await render({ path: '/missing/nested-page', wildcard });
             assert.match(html, /الصفحة غير موجودة/);
-            assert.match(html, /<title>الصفحة غير موجودة \| كيرفلو<\/title>/);
+            assert.match(html, /<title[^>]*>الصفحة غير موجودة \| كيرفلو<\/title>/);
             assert.match(html, /dir="rtl" lang="ar"/);
             assert.match(html, /href="\/"/);
             assert.doesNotMatch(html, /<button/);

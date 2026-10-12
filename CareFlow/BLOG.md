@@ -67,3 +67,7 @@ save, add, or remove Markdown files. To preview a draft locally, temporarily set
 `draft: false`; restore it before committing if it is not ready to publish.
 
 Before publishing, run `npm test`, `npm run lint`, and `npm run build`.
+
+The production build also generates article HTML, search and social metadata,
+structured data, and sitemap entries automatically. Drafts are excluded from
+all of these. See [SEO.md](SEO.md) for deployment and search-indexing setup.

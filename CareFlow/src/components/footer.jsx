@@ -23,7 +23,7 @@ export default function Footer() {
             <Link to="/">الرئيسية</Link>
             <a href="/#features">المميزات</a>
             <a href="/#pricing">الباقات والأسعار</a>
-            <Link to="/blog">المدونة</Link>
+            <Link to="/blog/">المدونة</Link>
           </nav>
 
           <div className={styles.start}>

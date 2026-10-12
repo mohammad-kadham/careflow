@@ -42,6 +42,8 @@ export async function loadPosts(directory) {
 export function blogContent({ contentDirectory = 'content/blog' } = {}) {
   const publicId = 'virtual:blog-posts';
   const resolvedId = '\0' + publicId;
+  const metadataId = 'virtual:blog-metadata';
+  const resolvedMetadataId = '\0' + metadataId;
   let directory;
   let isBuild;
   return {
@@ -50,21 +52,30 @@ export function blogContent({ contentDirectory = 'content/blog' } = {}) {
       directory = path.resolve(config.root, contentDirectory);
       isBuild = config.command === 'build';
     },
-    resolveId(id) { if (id === publicId) return resolvedId; },
+    resolveId(id) {
+      if (id === publicId) return resolvedId;
+      if (id === metadataId) return resolvedMetadataId;
+    },
     async load(id) {
-      if (id !== resolvedId) return;
+      if (id !== resolvedId && id !== resolvedMetadataId) return;
       if (isBuild) {
         this.addWatchFile(directory);
         for (const file of await readdir(directory)) this.addWatchFile(path.join(directory, file));
       }
-      return `export default ${JSON.stringify(await loadPosts(directory))};`;
+      const posts = await loadPosts(directory);
+      const data = id === resolvedMetadataId
+        ? posts.map(({ slug, title, description, date, author }) => ({ slug, title, description, date, author }))
+        : posts;
+      return `export default ${JSON.stringify(data)};`;
     },
     configureServer(server) {
       server.watcher.add(directory);
       const refresh = file => {
         if (path.dirname(path.resolve(file)) !== directory || !file.endsWith('.md')) return;
-        const module = server.moduleGraph.getModuleById(resolvedId);
-        if (module) server.moduleGraph.invalidateModule(module);
+        for (const id of [resolvedId, resolvedMetadataId]) {
+          const module = server.moduleGraph.getModuleById(id);
+          if (module) server.moduleGraph.invalidateModule(module);
+        }
         server.ws.send({ type: 'full-reload' });
       };
       for (const event of ['add', 'change', 'unlink']) server.watcher.on(event, refresh);

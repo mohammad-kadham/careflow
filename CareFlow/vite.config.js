@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 export default defineConfig({
   plugins: [react(), blogContent()],
   build: {
+    manifest: 'asset-manifest.json',
     rolldownOptions: {
       input: {
         main: fileURLToPath(new URL('./index.html', import.meta.url)),

@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { isRouteErrorResponse, useRouteError } from 'react-router-dom';
 import styles from './error.module.css';
+import SeoMetadata from '../seo/metadata.jsx';
+import { getMetadata } from '../seo/metadata';
 
-export default function ErrorPage({ notFound = false }) {
+export default function ErrorPage({ notFound = false, manageMetadata = true }) {
     const error = useRouteError();
     const headingRef = useRef(null);
     const missing = notFound || (isRouteErrorResponse(error) && error.status === 404);
@@ -13,7 +15,7 @@ export default function ErrorPage({ notFound = false }) {
     }, [missing]);
 
     return <main className={styles.page} dir="rtl" lang="ar">
-        <title>{`${title} | كيرفلو`}</title>
+        {manageMetadata && <SeoMetadata metadata={{ ...getMetadata('/404'), title: `${title} | كيرفلو` }} />}
         <a href="/" className={styles.brand} aria-label="كيرفلو — الصفحة الرئيسية">كيرفلو<span>.</span></a>
         <section className={styles.card} aria-labelledby="error-title">
             <div className={styles.symbol} aria-hidden="true">{missing ? '404' : '!'}</div>

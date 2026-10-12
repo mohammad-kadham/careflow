@@ -87,6 +87,10 @@ and verification behavior. Existing accounts keep their access when the migratio
 
 ## Blog
 
+Public pages are pre-rendered during `npm run build`, with page-specific search
+metadata, sharing cards, structured data, `robots.txt`, and a published-article
+sitemap. See [SEO.md](SEO.md) for production routing and Search Console setup.
+
 The public `/blog` page loads Markdown articles from `content/blog/`. Copy
 `post-template.md` to add a post, change its metadata and text, and set `draft: false`
 to publish with the next deployment. See [BLOG.md](BLOG.md) for GitHub editing,

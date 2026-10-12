@@ -19,27 +19,22 @@ function PostMeta({ post }) {
 function PostCard({ post, featured = false }) {
   return <article className={`${styles.card} ${featured ? styles.featured : ''}`}>
     <span className={styles.category}>{post.category}</span>
-    <h2><Link to={`/blog/${post.slug}`}>{post.title}</Link></h2>
+    <h2><Link to={`/blog/${post.slug}/`}>{post.title}</Link></h2>
     <p>{post.description}</p>
     <PostMeta post={post} />
-    <Link className={styles.readMore} to={`/blog/${post.slug}`} aria-label={`اقرأ المقال: ${post.title}`}>اقرأ المقال <span aria-hidden="true">←</span></Link>
+    <Link className={styles.readMore} to={`/blog/${post.slug}/`} aria-label={`اقرأ المقال: ${post.title}`}>اقرأ المقال <span aria-hidden="true">←</span></Link>
   </article>;
 }
 
 export default function BlogPage() {
   const { slug } = useParams();
   const post = slug ? posts.find(item => item.slug === slug) : null;
-  const title = slug ? post?.title || 'المقال غير موجود' : 'مدونة كيرفلو';
   const description = post?.description || 'أدلة وأفكار عملية لتنظيم يوم العيادة والعمل مع كيرفلو.';
   useEffect(() => {
-    const previousTitle = document.title;
-    document.title = `${title} | كيرفلو`;
     window.scrollTo(0, 0);
-    return () => { document.title = previousTitle; };
-  }, [title, slug]);
+  }, [slug]);
 
   return <div className={styles.page} dir="rtl">
-    <meta name="description" content={description} />
     <Header />
     <main id="blog-content" className={styles.main}>
       {!slug ? <>
@@ -53,7 +48,7 @@ export default function BlogPage() {
         </section> : <p className={styles.empty}>نعمل على إعداد مقالات جديدة. تابعنا قريبًا.</p>}
         <aside className={styles.cta}><div><h2>اكتشف كيرفلو بنفسك</h2><p>جرّب تنظيم المرضى والزيارات في العرض التجريبي.</p></div><Link to="/demo">جرّب بدون تسجيل <span aria-hidden="true">←</span></Link></aside>
       </> : post ? <article className={styles.article}>
-        <Link className={styles.back} to="/blog">→ جميع المقالات</Link>
+        <Link className={styles.back} to="/blog/">→ جميع المقالات</Link>
         <header className={styles.articleHeader}>
           <span className={styles.category}>{post.category}</span>
           <h1>{post.title}</h1>
@@ -61,10 +56,10 @@ export default function BlogPage() {
           <div className={styles.byline}><span>{post.author}</span><PostMeta post={post} /></div>
         </header>
         <div className={styles.prose}><BlogMarkdown>{post.body}</BlogMarkdown></div>
-        <div className={styles.articleEnd}><span>كيرفلو — إدارة أسهل. رعاية أفضل.</span><Link to="/blog">استكشف المزيد من المقالات ←</Link></div>
+        <div className={styles.articleEnd}><span>كيرفلو — إدارة أسهل. رعاية أفضل.</span><Link to="/blog/">استكشف المزيد من المقالات ←</Link></div>
       </article> : <section className={styles.empty}>
         <span className={styles.eyebrow}>٤٠٤</span><h1>المقال غير موجود</h1>
-        <p>قد يكون الرابط غير صحيح أو أن المقال لم يعد متاحًا.</p><Link className={styles.back} to="/blog">العودة إلى المدونة ←</Link>
+        <p>قد يكون الرابط غير صحيح أو أن المقال لم يعد متاحًا.</p><Link className={styles.back} to="/blog/">العودة إلى المدونة ←</Link>
       </section>}
     </main>
     <Footer />

@@ -13,7 +13,7 @@ export default function Header() {
           <a href="/#features">المميزات</a>
           <Link to="/demo">كيف يعمل؟</Link>
           <a href="/#pricing">الأسعار</a>
-          <Link to="/blog">المدونة</Link>
+          <Link to="/blog/">المدونة</Link>
         </nav>
         <div className={styles.actions}>
           <Link to="/login" className={styles.button}>تسجيل الدخول</Link>
