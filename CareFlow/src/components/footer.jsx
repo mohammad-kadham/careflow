@@ -23,6 +23,7 @@ export default function Footer() {
             <Link to="/">الرئيسية</Link>
             <a href="/#features">المميزات</a>
             <a href="/#pricing">الباقات والأسعار</a>
+            <a href="/#promotions">استقبال العروض</a>
             <Link to="/blog/">المدونة</Link>
           </nav>
 

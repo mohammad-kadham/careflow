@@ -51,6 +51,27 @@ retrying. Requests use unique IDs so retrying a request after a connection failu
 does not add subscription time twice. Account access and list data refresh when
 you navigate or press **تحديث البيانات**.
 
+## Promotion contacts
+
+The homepage's **استقبال العروض** form collects an email and phone number only
+after an unchecked consent checkbox is selected. View submissions in
+**مهتمون بالعروض**, with email/phone search and 25-row pagination. Access uses the
+existing admin session and allowlist. No messages are sent by this feature.
+
+Startup creates `promotion_contacts`. Each record stores the normalized contact
+pair, server-selected source, consent wording/version and its original UTC
+timestamp. Repeated submissions of the same email/phone pair do not duplicate
+or overwrite it; a different phone for the same email is a separate submission.
+Arabic/Persian phone digits are normalized; Iraqi mobile numbers beginning `07`
+are stored as `+9647…`. The public endpoint is rate limited and never returns
+contact records or discloses whether the pair already exists. No contact data
+is added to analytics events, URLs or browser storage.
+
+These are submitted opt-ins, not verified ownership of either contact channel.
+Review entries before using them for outreach, and honor withdrawal requests.
+Automated campaigns, channel verification and unsubscribe delivery are outside
+this collection feature. No existing clinic/customer accounts are enrolled.
+
 ## Server access configuration
 
 `ADMIN_USER_IDS` in `/etc/careflow/backend.env` is a comma-separated allowlist of

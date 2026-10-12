@@ -4,6 +4,7 @@ const { randomBytes } = require('node:crypto');
 const User = require('../models/users');
 const model = require('../models/admin');
 const trials = require('../models/trial-codes');
+const promotions = require('../models/promotions');
 const auth = require('../middleware/admin');
 const rateLimit = require('../middleware/rate-limit');
 const router = express.Router();
@@ -54,11 +55,11 @@ router.post('/trial-codes/status', async (req, res, next) => {
     if (typeof enabled !== 'boolean') return invalid(res);
     try { await trials.setEnabled(enabled); res.json({ ok: true }); } catch (error) { next(error); }
 });
-for (const name of ['payments', 'clinics', 'audit']) {
+for (const name of ['payments', 'clinics', 'audit', 'promotions']) {
     router.get('/' + name, async (req, res, next) => {
         const { q = '', status = 'pending', page = '1' } = req.query;
         if (typeof q !== 'string' || q.length > 150 || typeof page !== 'string' || !/^[1-9]\d{0,5}$/.test(page) || !['pending', 'approved', 'rejected', 'all'].includes(status)) return invalid(res);
-        try { res.json(await model[name]({ q: q.trim(), status, page: Number(page) })); } catch (error) { next(error); }
+        try { res.json(await (name === 'promotions' ? promotions.list : model[name])({ q: q.trim(), status, page: Number(page) })); } catch (error) { next(error); }
     });
 }
 

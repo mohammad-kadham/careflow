@@ -19,6 +19,7 @@ app.use(cors({
 app.use(protectCookieWrites);
 app.use(express.json());
 app.use('/admin', require('./routes/admin'));
+app.use('/promotions', require('./routes/promotions'));
 app.use(userRoutes);
 // Every patient, queue and visit route requires a valid session.
 app.use(requireAuth, requireSubscription, patientRoutes);

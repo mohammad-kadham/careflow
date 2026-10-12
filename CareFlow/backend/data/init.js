@@ -99,6 +99,7 @@ async function initDB() {
   await require('./migrations/add-admin')(pool);
   await require('./migrations/add-password-reset')(pool);
   await require('./migrations/add-trial-codes')(pool);
+  await require('./migrations/add-promotion-contacts')(pool);
   console.log('Tables ready');
 
 }
