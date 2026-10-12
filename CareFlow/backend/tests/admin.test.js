@@ -15,8 +15,15 @@ const users = [
 const sessions = new Map(), mutations = [];
 const trialCalls = [];
 const promotionPath = require.resolve('../models/promotions');
+const exportCalls = [];
+let exportFailure = false;
 require.cache[promotionPath] = { id: promotionPath, filename: promotionPath, loaded: true, exports: {
     list: async filters => ({ rows: [{ id: 1, email: 'opt-in@example.test', phone: '+9647701234567' }], filters, hasMore: false }),
+    exportContacts: async filters => {
+        if (exportFailure) throw new Error('PRIVATE-DATABASE-DETAILS');
+        exportCalls.push(filters);
+        return Array.from({ length: 30 }, (_, id) => ({ email: `contact${id}@example.test`, phone: '+9647701234567', createdAt: '2026-10-12T00:00:00Z' }));
+    },
 } };
 const trialPath = require.resolve('../models/trial-codes');
 require.cache[trialPath] = { id: trialPath, filename: trialPath, loaded: true, exports: {
@@ -51,6 +58,9 @@ test('admin authentication is separate, restricted, revocable and protected agai
     assert.equal((await request('/payments')).status, 401);
     assert.equal((await request('/clinics')).status, 401);
     assert.equal((await request('/promotions')).status, 401);
+    assert.equal((await request('/promotions/export')).status, 401);
+    assert.equal((await request('/promotions/export', undefined, 'careflow_session=customer-token')).status, 401);
+    assert.equal(exportCalls.length, 0);
     assert.equal((await request('/promotions', undefined, 'careflow_session=customer-token')).status, 401);
     assert.equal((await request('/clinics', undefined, 'careflow_session=customer-token')).status, 401);
     assert.equal((await request('/trial-codes')).status, 401);
@@ -76,6 +86,22 @@ test('admin authentication is separate, restricted, revocable and protected agai
     assert.equal(contacts.headers.get('cache-control'), 'no-store');
     assert.deepEqual((await contacts.json()).filters, { q: 'opt-in', status: 'pending', page: 2 });
     assert.equal((await request('/promotions?page=0', undefined, cookie)).status, 400);
+    const download = await request('/promotions/export?q=%20contact%20', undefined, cookie);
+    assert.equal(download.status, 200);
+    assert.equal(download.headers.get('cache-control'), 'no-store');
+    assert.match(download.headers.get('content-type'), /text\/csv; charset=utf-8/);
+    assert.match(download.headers.get('content-disposition'), /attachment; filename="careflow-promotion-contacts.csv"/);
+    const csv = await download.text();
+    assert.equal(csv.split('\r\n').length, 32, 'Download includes all 30 records, not just the first page');
+    assert.match(csv, /contact29@example.test/);
+    assert.deepEqual(exportCalls, [{ q: 'contact' }]);
+    for (const query of ['q=one&q=two', `q=${'x'.repeat(151)}`]) assert.equal((await request('/promotions/export?' + query, undefined, cookie)).status, 400);
+    exportFailure = true;
+    const failedExport = await request('/promotions/export', undefined, cookie);
+    assert.equal(failedExport.status, 500);
+    assert.equal(failedExport.headers.get('content-disposition'), null);
+    assert.doesNotMatch(await failedExport.text(), /PRIVATE-DATABASE/);
+    exportFailure = false;
     const clinicList = await request('/clinics?q=%20clinic%20&page=2', undefined, cookie);
     assert.equal(clinicList.status, 200);
     assert.equal(clinicList.headers.get('cache-control'), 'no-store');
@@ -87,6 +113,7 @@ test('admin authentication is separate, restricted, revocable and protected agai
     assert.equal((await request('/me', undefined, cookie)).status, 401, 'Removing authorization invalidates existing sessions');
     assert.equal((await request('/clinics', undefined, cookie)).status, 401);
     assert.equal((await request('/promotions', undefined, cookie)).status, 401);
+    assert.equal((await request('/promotions/export', undefined, cookie)).status, 401);
     process.env.ADMIN_USER_IDS = '1';
     const review = { action: 'approve', confirmed: true, reason: 'Receipt verified', requestId: randomUUID(), plan: 'advanced', clinicId: 999, actorId: 999 };
     assert.equal((await request('/payments/4/review', review, cookie, { Origin: 'https://evil.example' })).status, 403);

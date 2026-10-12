@@ -5,6 +5,7 @@ const User = require('../models/users');
 const model = require('../models/admin');
 const trials = require('../models/trial-codes');
 const promotions = require('../models/promotions');
+const promotionCsv = require('../utils/promotion-csv');
 const auth = require('../middleware/admin');
 const rateLimit = require('../middleware/rate-limit');
 const router = express.Router();
@@ -39,6 +40,15 @@ router.post('/logout', async (req, res, next) => {
 router.use(auth.requireAdmin);
 router.get('/me', (req, res) => res.json({ user: publicUser(req.admin) }));
 router.get('/summary', async (req, res, next) => { try { res.json(await model.summary()); } catch (error) { next(error); } });
+router.get('/promotions/export', async (req, res, next) => {
+    const { q = '' } = req.query;
+    if (typeof q !== 'string' || q.length > 150) return invalid(res);
+    try {
+        const rows = await promotions.exportContacts({ q: q.trim() });
+        res.set('Content-Disposition', 'attachment; filename="careflow-promotion-contacts.csv"');
+        res.type('text/csv').send(promotionCsv(rows));
+    } catch (error) { next(error); }
+});
 router.get('/trial-codes', async (req, res, next) => {
     const { page = '1' } = req.query;
     if (typeof page !== 'string' || !/^[1-9]\d{0,5}$/.test(page)) return invalid(res);

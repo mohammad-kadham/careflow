@@ -6,6 +6,34 @@ require.cache[dbPath] = { id: dbPath, filename: dbPath, loaded: true, exports: d
 const promotions = require('../../models/promotions');
 const consent = require('../../config/promotion-consent.json');
 const migrate = require('../../data/migrations/add-promotion-contacts');
+const promotionCsv = require('../../utils/promotion-csv');
+
+test('export returns every matching contact without pagination and binds literal searches', async t => {
+    const contacts = Array.from({ length: 60 }, (_, id) => ({ email: `person${id}@example.test` }));
+    const calls = [];
+    t.mock.method(db, 'query', async (sql, values) => { calls.push({ sql, values }); return [contacts]; });
+    assert.equal((await promotions.exportContacts({ q: '' })).length, 60);
+    assert.deepEqual(calls[0].values, []);
+    assert.doesNotMatch(calls[0].sql, /LIMIT|OFFSET|WHERE/);
+    assert.equal((await promotions.exportContacts({ q: '100%_!' })).length, 60);
+    assert.deepEqual(calls[1].values, ['%100!%!_!!%', '%100!%!_!!%']);
+    assert.match(calls[1].sql, /WHERE email LIKE \? ESCAPE '!' OR phone LIKE \? ESCAPE '!'/);
+});
+
+test('CSV supports Arabic, quotes and newlines while protecting phones and formula-like values', () => {
+    const csv = promotionCsv([
+        { email: 'شخص@example.test', phone: '+9647701234567', createdAt: '2026-10-12T00:00:00Z' },
+        { email: '=HYPERLINK("evil","click")', phone: '07701234567', createdAt: '' },
+        { email: 'line,one\r\nline"two', phone: '', createdAt: '' },
+        ...['+cmd', '-cmd', '@cmd', '  =cmd', '\tcmd', '\rcmd', '\ncmd'].map(email => ({ email })),
+    ]);
+    assert.ok(csv.startsWith('\uFEFF"البريد الإلكتروني"'));
+    assert.ok(csv.includes('"شخص@example.test","\'+9647701234567","2026-10-12T00:00:00Z"\r\n'));
+    assert.ok(csv.includes('"\'=HYPERLINK(""evil"",""click"")","\'07701234567"'));
+    assert.ok(csv.includes('"line,one\r\nline""two"'));
+    for (const value of ['+cmd', '-cmd', '@cmd', '  =cmd', '\tcmd', '\rcmd', '\ncmd']) assert.ok(csv.includes('"\'' + value + '"'));
+    assert.equal(promotionCsv([]).split('\r\n').length, 2, 'Empty exports contain only the header');
+});
 
 test('contact insert binds data, records server consent, and never overwrites a contact on retry', async t => {
     const calls = [];

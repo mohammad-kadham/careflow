@@ -58,6 +58,13 @@ after an unchecked consent checkbox is selected. View submissions in
 **مهتمون بالعروض**, with email/phone search and 25-row pagination. Access uses the
 existing admin session and allowlist. No messages are sent by this feature.
 
+Use **تصدير القائمة (CSV)** to download every promotion contact, across all pages.
+After applying a search, **تصدير نتائج البحث (CSV)** downloads every matching
+contact. Clear the search to export the full list. The UTF-8 CSV includes email,
+phone and consent time in UTC, with Arabic headers. Phone cells have a leading
+apostrophe to preserve their text format in spreadsheets; formula-like values
+are escaped. Exports require a current admin session and are never cached.
+
 Startup creates `promotion_contacts`. Each record stores the normalized contact
 pair, server-selected source, consent wording/version and its original UTC
 timestamp. Repeated submissions of the same email/phone pair do not duplicate

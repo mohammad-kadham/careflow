@@ -19,3 +19,12 @@ exports.list = async ({ q, page }) => {
     [...(q ? [term, term] : []), (page - 1) * 25]);
     return { rows: rows.slice(0, 25), hasMore: rows.length > 25 };
 };
+
+exports.exportContacts = async ({ q }) => {
+    const term = '%' + q.replace(/[!%_]/g, character => '!' + character) + '%';
+    const filter = q ? "WHERE email LIKE ? ESCAPE '!' OR phone LIKE ? ESCAPE '!'" : '';
+    const [rows] = await db.query(`SELECT email, phone,
+        DATE_FORMAT(created_at, '%Y-%m-%dT%H:%i:%sZ') AS createdAt
+        FROM promotion_contacts ${filter} ORDER BY id DESC`, q ? [term, term] : []);
+    return rows;
+};

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { adminRequest, localDateInput, subscriptionStatus } from './api';
 import { SharedTrialCode } from './trial-codes';
 import ClinicDirectory from './clinics';
-import PromotionContacts from './promotions';
+import PromotionContacts, { PromotionExport } from './promotions';
 
 const plans = { basic: 'الأساسية', advanced: 'المتقدمة' };
 const decisions = { pending: 'بانتظار المراجعة', approved: 'مقبول', rejected: 'مرفوض' };
@@ -92,6 +92,7 @@ export function Dashboard({ user, onLogout }) {
       {view === 'trial-codes' && loaded && !result.error && <SharedTrialCode code={result.code} onDone={() => { setPage(1); completed(); }} onUnauthorized={onLogout} />}
       <section className="panel">
         <div className="toolbar">
+          {view === 'promotions' && <PromotionExport key={q} q={q} onUnauthorized={onLogout} />}
           {['payments', 'clinics', 'all-clinics', 'promotions'].includes(view) && <form onSubmit={event => { event.preventDefault(); setQ(search.trim()); setPage(1); }} className="search"><label className="sr-only" htmlFor="search">بحث</label><input id="search" placeholder={view === 'promotions' ? 'البريد الإلكتروني أو رقم الهاتف…' : view === 'payments' ? 'اسم، بريد، هاتف أو رقم التحويل…' : 'اسم العيادة، الطبيب، البريد، الهاتف أو رقم العيادة…'} value={search} onChange={event => setSearch(event.target.value)} maxLength={150} /><button className="secondary">بحث</button>{['all-clinics', 'promotions'].includes(view) && (search || q) && <button type="button" className="secondary" onClick={() => { setSearch(''); setQ(''); setPage(1); }}>مسح</button>}</form>}
           {view === 'all-clinics' && <p className="muted">إجمالي العيادات في قاعدة البيانات: <strong>{summary ? Number(summary.clinics).toLocaleString('ar-IQ') : '—'}</strong></p>}
           {view === 'payments' && <label className="filter">حالة البلاغ<select value={status} onChange={event => { setStatus(event.target.value); setPage(1); }}><option value="pending">بانتظار المراجعة</option><option value="approved">مقبول</option><option value="rejected">مرفوض</option><option value="all">الكل</option></select></label>}
